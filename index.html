@@ -718,13 +718,15 @@
 
         /* CALENDAR COMPONENT - Matching Image */
         .calendar-card {
-            background: var(--bg-card);
-            border-radius: 32px;
-            padding: 24px;
+            background: var(--bg-body);
+            border-radius: 32px 32px 0 0;
+            /* Solo arriba */
+            padding: 24px 24px 40px;
             box-shadow: var(--shadow);
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             border: 1px solid var(--border);
+            animation: slideSheet 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .calendar-header {
@@ -921,6 +923,7 @@
             background: rgba(0, 0, 0, 0.4);
             display: none;
             align-items: flex-end;
+            /* Anclado abajo */
             justify-content: center;
             z-index: 2500;
             padding: 0;
@@ -1293,6 +1296,10 @@
             lucide.createIcons();
             setTimeout(() => toast.remove(), 3500);
         }
+
+        // --- CONNECTION STATUS ---
+        window.addEventListener('online', () => showToast('¡Estás en línea! Sincronizando...', 'wifi'));
+        window.addEventListener('offline', () => showToast('Modo sin conexión activo 📶', 'wifi-off'));
 
         // --- BIBLE DATA ---
         const BOOKS = [{ id: 1, n: "Génesis", c: 50, nt: false }, { id: 2, n: "Éxodo", c: 40, nt: false }, { id: 3, n: "Levítico", c: 27, nt: false }, { id: 4, n: "Números", c: 36, nt: false }, { id: 5, n: "Deuteronomio", c: 34, nt: false }, { id: 6, n: "Josué", c: 24, nt: false }, { id: 7, n: "Jueces", c: 21, nt: false }, { id: 8, n: "Rut", c: 4, nt: false }, { id: 9, n: "1 Samuel", c: 31, nt: false }, { id: 10, n: "2 Samuel", c: 24, nt: false }, { id: 11, n: "1 Reyes", c: 22, nt: false }, { id: 12, n: "2 Reyes", c: 25, nt: false }, { id: 13, n: "1 Crónicas", c: 29, nt: false }, { id: 14, n: "2 Crónicas", c: 36, nt: false }, { id: 15, n: "Esdras", c: 10, nt: false }, { id: 16, n: "Nehemías", c: 13, nt: false }, { id: 17, n: "Ester", c: 10, nt: false }, { id: 18, n: "Job", c: 42, nt: false }, { id: 19, n: "Salmos", c: 150, nt: false }, { id: 20, n: "Proverbios", c: 31, nt: false }, { id: 21, n: "Eclesiastés", c: 12, nt: false }, { id: 22, n: "Cantares", c: 8, nt: false }, { id: 23, n: "Isaías", c: 66, nt: false }, { id: 24, n: "Jeremías", c: 52, nt: false }, { id: 25, n: "Lamentaciones", c: 5, nt: false }, { id: 26, n: "Ezequiel", c: 48, nt: false }, { id: 27, n: "Daniel", c: 12, nt: false }, { id: 28, n: "Oseas", c: 14, nt: false }, { id: 29, n: "Joel", c: 3, nt: false }, { id: 30, n: "Amós", c: 9, nt: false }, { id: 31, n: "Abdías", c: 1, nt: false }, { id: 32, n: "Jonás", c: 4, nt: false }, { id: 33, n: "Miqueas", c: 7, nt: false }, { id: 34, n: "Nahúm", c: 3, nt: false }, { id: 35, n: "Habacuc", c: 3, nt: false }, { id: 36, n: "Sofonías", c: 3, nt: false }, { id: 37, n: "Hageo", c: 2, nt: false }, { id: 38, n: "Zacarías", c: 14, nt: false }, { id: 39, n: "Malaquías", c: 4, nt: false }, { id: 40, n: "Mateo", c: 28, nt: true }, { id: 41, n: "Marcos", c: 16, nt: true }, { id: 42, n: "Lucas", c: 24, nt: true }, { id: 43, n: "Juan", c: 21, nt: true }, { id: 44, n: "Hechos", c: 28, nt: true }, { id: 45, n: "Romanos", c: 16, nt: true }, { id: 46, n: "1 Corintios", c: 16, nt: true }, { id: 47, n: "2 Corintios", c: 13, nt: true }, { id: 48, n: "Gálatas", c: 6, nt: true }, { id: 49, n: "Efesios", c: 6, nt: true }, { id: 50, n: "Filipenses", c: 4, nt: true }, { id: 51, n: "Colosenses", c: 4, nt: true }, { id: 52, n: "1 Tesalonicenses", c: 5, nt: true }, { id: 53, n: "2 Tesalonicenses", c: 3, nt: true }, { id: 54, n: "1 Timoteo", c: 6, nt: true }, { id: 55, n: "2 Timoteo", c: 4, nt: true }, { id: 56, n: "Tito", c: 3, nt: true }, { id: 57, n: "Filemón", c: 1, nt: true }, { id: 58, n: "Hebreos", c: 13, nt: true }, { id: 59, n: "Santiago", c: 5, nt: true }, { id: 60, n: "1 Pedro", c: 5, nt: true }, { id: 61, n: "2 Pedro", c: 3, nt: true }, { id: 62, n: "1 Juan", c: 5, nt: true }, { id: 63, n: "2 Juan", c: 1, nt: true }, { id: 64, n: "3 Juan", c: 1, nt: true }, { id: 65, n: "Judas", c: 1, nt: true }, { id: 66, n: "Apocalipsis", c: 22, nt: true }];
@@ -2006,9 +2013,17 @@
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW Registered'))
-                    .catch(err => console.log('SW Failed', err));
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    // Check for updates periodically
+                    reg.onupdatefound = () => {
+                        const newWorker = reg.installing;
+                        newWorker.onstatechange = () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                showToast('App actualizada a la última versión ✨', 'refresh-cw');
+                            }
+                        };
+                    };
+                }).catch(err => console.log('SW Failed', err));
             });
         }
     </script>
