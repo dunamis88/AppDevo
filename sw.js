@@ -1,4 +1,4 @@
-const CACHE_NAME = 'devocional-v2'; // Incrementar versión
+const CACHE_NAME = 'devocional-v3'; // Nueva versión para forzar actualización
 const ASSETS = [
   './',
   './index.html',
@@ -9,7 +9,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); // Forzar activación inmediata
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
@@ -21,12 +21,21 @@ self.addEventListener('activate', (event) => {
       keys.map((key) => {
         if (key !== CACHE_NAME) return caches.delete(key);
       })
-    )).then(() => self.clients.claim()) // Tomar control de las pestañas abiertas inmediatamente
+    )).then(() => self.clients.claim())
   );
 });
 
+// Estrategia Network First: Intenta red, si falla usa cache
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => response || fetch(event.request))
+    fetch(event.request)
+      .then((response) => {
+        const resClone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, resClone);
+        });
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });

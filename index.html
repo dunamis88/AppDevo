@@ -2012,20 +2012,34 @@
 
         init();
 
-        // PWA Service Worker Registration
+        // PWA Service Worker Registration & Auto-Update
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then(reg => {
-                    // Check for updates periodically
+                    // Verificación forzada cada vez que se abre la app
+                    reg.update();
+
                     reg.onupdatefound = () => {
                         const newWorker = reg.installing;
                         newWorker.onstatechange = () => {
                             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                                 showToast('App actualizada a la última versión ✨', 'refresh-cw');
+                                // Recargamos después del toast para que el usuario use la nueva versión
+                                setTimeout(() => window.location.reload(), 2000);
                             }
                         };
                     };
                 }).catch(err => console.log('SW Failed', err));
+            });
+
+            // Detectar cuando el Service Worker toma el control (activación)
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    refreshing = true;
+                    // No hace falta hacer nada aquí si ya manejamos installed, 
+                    // pero asegura que la página se sincronice
+                }
             });
         }
     </script>
