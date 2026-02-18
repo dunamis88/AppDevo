@@ -230,7 +230,7 @@
         #date-display-trigger {
             font-size: 16px;
             font-weight: 700;
-            color: white;
+            color: var(--text-main);
             text-transform: capitalize;
             cursor: pointer;
             padding: 5px 15px;
@@ -1265,653 +1265,654 @@
                 </button>
             </div>
         </div>
+    </div>
 
-        <div class="modal-overlay" id="prayer-modal">
-            <div class="modal-sheet">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h3 style="font-size: 20px;">Nueva Oración</h3>
-                    <button style="background:none; border:none; color:var(--text-muted);"
-                        onclick="closePrayerModal()"><i data-lucide="x"></i></button>
-                </div>
-                <div class="input-group">
-                    <label>Asunto / Petición</label>
-                    <input type="text" id="p-title" placeholder="Ej: Por mi familia">
-                </div>
-                <div class="input-group">
-                    <label>Detalles</label>
-                    <textarea id="p-details" rows="3" placeholder="Relátale a Dios tu corazón..."></textarea>
-                </div>
-                <button class="btn btn-primary btn-full" onclick="addPrayer()">Guardar Petición</button>
+    <div class="modal-overlay" id="prayer-modal">
+        <div class="modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="font-size: 20px;">Nueva Oración</h3>
+                <button style="background:none; border:none; color:var(--text-muted);" onclick="closePrayerModal()"><i
+                        data-lucide="x"></i></button>
             </div>
+            <div class="input-group">
+                <label>Asunto / Petición</label>
+                <input type="text" id="p-title" placeholder="Ej: Por mi familia">
+            </div>
+            <div class="input-group">
+                <label>Detalles</label>
+                <textarea id="p-details" rows="3" placeholder="Relátale a Dios tu corazón..."></textarea>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="addPrayer()">Guardar Petición</button>
         </div>
+    </div>
 
-        <script>
-            // --- TOAST NOTIFICATIONS ---
-            function showToast(msg, icon = 'check-circle') {
-                const container = document.getElementById('toast-container');
-                const toast = document.createElement('div');
-                toast.className = 'toast glass';
-                toast.innerHTML = `<i data-lucide="${icon}" style="width:18px; color:var(--primary);"></i> ${msg}`;
-                container.appendChild(toast);
-                lucide.createIcons();
-                setTimeout(() => toast.remove(), 3500);
-            }
+    <script>
+        // --- TOAST NOTIFICATIONS ---
+        function showToast(msg, icon = 'check-circle') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast glass';
+            toast.innerHTML = `<i data-lucide="${icon}" style="width:18px; color:var(--primary);"></i> ${msg}`;
+            container.appendChild(toast);
+            lucide.createIcons();
+            setTimeout(() => toast.remove(), 3500);
+        }
 
-            // --- BIBLE DATA ---
-            const BOOKS = [{ id: 1, n: "Génesis", c: 50, nt: false }, { id: 2, n: "Éxodo", c: 40, nt: false }, { id: 3, n: "Levítico", c: 27, nt: false }, { id: 4, n: "Números", c: 36, nt: false }, { id: 5, n: "Deuteronomio", c: 34, nt: false }, { id: 6, n: "Josué", c: 24, nt: false }, { id: 7, n: "Jueces", c: 21, nt: false }, { id: 8, n: "Rut", c: 4, nt: false }, { id: 9, n: "1 Samuel", c: 31, nt: false }, { id: 10, n: "2 Samuel", c: 24, nt: false }, { id: 11, n: "1 Reyes", c: 22, nt: false }, { id: 12, n: "2 Reyes", c: 25, nt: false }, { id: 13, n: "1 Crónicas", c: 29, nt: false }, { id: 14, n: "2 Crónicas", c: 36, nt: false }, { id: 15, n: "Esdras", c: 10, nt: false }, { id: 16, n: "Nehemías", c: 13, nt: false }, { id: 17, n: "Ester", c: 10, nt: false }, { id: 18, n: "Job", c: 42, nt: false }, { id: 19, n: "Salmos", c: 150, nt: false }, { id: 20, n: "Proverbios", c: 31, nt: false }, { id: 21, n: "Eclesiastés", c: 12, nt: false }, { id: 22, n: "Cantares", c: 8, nt: false }, { id: 23, n: "Isaías", c: 66, nt: false }, { id: 24, n: "Jeremías", c: 52, nt: false }, { id: 25, n: "Lamentaciones", c: 5, nt: false }, { id: 26, n: "Ezequiel", c: 48, nt: false }, { id: 27, n: "Daniel", c: 12, nt: false }, { id: 28, n: "Oseas", c: 14, nt: false }, { id: 29, n: "Joel", c: 3, nt: false }, { id: 30, n: "Amós", c: 9, nt: false }, { id: 31, n: "Abdías", c: 1, nt: false }, { id: 32, n: "Jonás", c: 4, nt: false }, { id: 33, n: "Miqueas", c: 7, nt: false }, { id: 34, n: "Nahúm", c: 3, nt: false }, { id: 35, n: "Habacuc", c: 3, nt: false }, { id: 36, n: "Sofonías", c: 3, nt: false }, { id: 37, n: "Hageo", c: 2, nt: false }, { id: 38, n: "Zacarías", c: 14, nt: false }, { id: 39, n: "Malaquías", c: 4, nt: false }, { id: 40, n: "Mateo", c: 28, nt: true }, { id: 41, n: "Marcos", c: 16, nt: true }, { id: 42, n: "Lucas", c: 24, nt: true }, { id: 43, n: "Juan", c: 21, nt: true }, { id: 44, n: "Hechos", c: 28, nt: true }, { id: 45, n: "Romanos", c: 16, nt: true }, { id: 46, n: "1 Corintios", c: 16, nt: true }, { id: 47, n: "2 Corintios", c: 13, nt: true }, { id: 48, n: "Gálatas", c: 6, nt: true }, { id: 49, n: "Efesios", c: 6, nt: true }, { id: 50, n: "Filipenses", c: 4, nt: true }, { id: 51, n: "Colosenses", c: 4, nt: true }, { id: 52, n: "1 Tesalonicenses", c: 5, nt: true }, { id: 53, n: "2 Tesalonicenses", c: 3, nt: true }, { id: 54, n: "1 Timoteo", c: 6, nt: true }, { id: 55, n: "2 Timoteo", c: 4, nt: true }, { id: 56, n: "Tito", c: 3, nt: true }, { id: 57, n: "Filemón", c: 1, nt: true }, { id: 58, n: "Hebreos", c: 13, nt: true }, { id: 59, n: "Santiago", c: 5, nt: true }, { id: 60, n: "1 Pedro", c: 5, nt: true }, { id: 61, n: "2 Pedro", c: 3, nt: true }, { id: 62, n: "1 Juan", c: 5, nt: true }, { id: 63, n: "2 Juan", c: 1, nt: true }, { id: 64, n: "3 Juan", c: 1, nt: true }, { id: 65, n: "Judas", c: 1, nt: true }, { id: 66, n: "Apocalipsis", c: 22, nt: true }];
+        // --- BIBLE DATA ---
+        const BOOKS = [{ id: 1, n: "Génesis", c: 50, nt: false }, { id: 2, n: "Éxodo", c: 40, nt: false }, { id: 3, n: "Levítico", c: 27, nt: false }, { id: 4, n: "Números", c: 36, nt: false }, { id: 5, n: "Deuteronomio", c: 34, nt: false }, { id: 6, n: "Josué", c: 24, nt: false }, { id: 7, n: "Jueces", c: 21, nt: false }, { id: 8, n: "Rut", c: 4, nt: false }, { id: 9, n: "1 Samuel", c: 31, nt: false }, { id: 10, n: "2 Samuel", c: 24, nt: false }, { id: 11, n: "1 Reyes", c: 22, nt: false }, { id: 12, n: "2 Reyes", c: 25, nt: false }, { id: 13, n: "1 Crónicas", c: 29, nt: false }, { id: 14, n: "2 Crónicas", c: 36, nt: false }, { id: 15, n: "Esdras", c: 10, nt: false }, { id: 16, n: "Nehemías", c: 13, nt: false }, { id: 17, n: "Ester", c: 10, nt: false }, { id: 18, n: "Job", c: 42, nt: false }, { id: 19, n: "Salmos", c: 150, nt: false }, { id: 20, n: "Proverbios", c: 31, nt: false }, { id: 21, n: "Eclesiastés", c: 12, nt: false }, { id: 22, n: "Cantares", c: 8, nt: false }, { id: 23, n: "Isaías", c: 66, nt: false }, { id: 24, n: "Jeremías", c: 52, nt: false }, { id: 25, n: "Lamentaciones", c: 5, nt: false }, { id: 26, n: "Ezequiel", c: 48, nt: false }, { id: 27, n: "Daniel", c: 12, nt: false }, { id: 28, n: "Oseas", c: 14, nt: false }, { id: 29, n: "Joel", c: 3, nt: false }, { id: 30, n: "Amós", c: 9, nt: false }, { id: 31, n: "Abdías", c: 1, nt: false }, { id: 32, n: "Jonás", c: 4, nt: false }, { id: 33, n: "Miqueas", c: 7, nt: false }, { id: 34, n: "Nahúm", c: 3, nt: false }, { id: 35, n: "Habacuc", c: 3, nt: false }, { id: 36, n: "Sofonías", c: 3, nt: false }, { id: 37, n: "Hageo", c: 2, nt: false }, { id: 38, n: "Zacarías", c: 14, nt: false }, { id: 39, n: "Malaquías", c: 4, nt: false }, { id: 40, n: "Mateo", c: 28, nt: true }, { id: 41, n: "Marcos", c: 16, nt: true }, { id: 42, n: "Lucas", c: 24, nt: true }, { id: 43, n: "Juan", c: 21, nt: true }, { id: 44, n: "Hechos", c: 28, nt: true }, { id: 45, n: "Romanos", c: 16, nt: true }, { id: 46, n: "1 Corintios", c: 16, nt: true }, { id: 47, n: "2 Corintios", c: 13, nt: true }, { id: 48, n: "Gálatas", c: 6, nt: true }, { id: 49, n: "Efesios", c: 6, nt: true }, { id: 50, n: "Filipenses", c: 4, nt: true }, { id: 51, n: "Colosenses", c: 4, nt: true }, { id: 52, n: "1 Tesalonicenses", c: 5, nt: true }, { id: 53, n: "2 Tesalonicenses", c: 3, nt: true }, { id: 54, n: "1 Timoteo", c: 6, nt: true }, { id: 55, n: "2 Timoteo", c: 4, nt: true }, { id: 56, n: "Tito", c: 3, nt: true }, { id: 57, n: "Filemón", c: 1, nt: true }, { id: 58, n: "Hebreos", c: 13, nt: true }, { id: 59, n: "Santiago", c: 5, nt: true }, { id: 60, n: "1 Pedro", c: 5, nt: true }, { id: 61, n: "2 Pedro", c: 3, nt: true }, { id: 62, n: "1 Juan", c: 5, nt: true }, { id: 63, n: "2 Juan", c: 1, nt: true }, { id: 64, n: "3 Juan", c: 1, nt: true }, { id: 65, n: "Judas", c: 1, nt: true }, { id: 66, n: "Apocalipsis", c: 22, nt: true }];
 
-            // --- GLOBAL STATE ---
-            let appState = {
-                user: null,
-                theme: 'light',
-                viewDate: new Date().toISOString().split('T')[0],
-                devotionals: {},
-                reading: {},
-                prayers: [],
-                calendar: { currentMonth: new Date().getMonth(), currentYear: new Date().getFullYear(), target: 'devotional', selectedDate: '', mode: 'days' }
-            };
+        // --- GLOBAL STATE ---
+        let appState = {
+            user: null,
+            theme: 'light',
+            viewDate: new Date().toISOString().split('T')[0],
+            devotionals: {},
+            reading: {},
+            prayers: [],
+            calendar: { currentMonth: new Date().getMonth(), currentYear: new Date().getFullYear(), target: 'devotional', selectedDate: '', mode: 'days' }
+        };
 
-            const STORAGE_KEY = 'devocional_pro_v6';
+        const STORAGE_KEY = 'devocional_pro_v6';
 
-            // --- INITIALIZATION ---
-            function init() {
-                const data = localStorage.getItem(STORAGE_KEY);
-                if (data) appState = JSON.parse(data);
+        // --- INITIALIZATION ---
+        function init() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (data) appState = JSON.parse(data);
 
-                if (!appState.user) {
-                    document.getElementById('onboarding-overlay').style.display = 'flex';
-                } else {
-                    renderProfile();
-                }
-
-                setTheme(appState.theme);
-                updateDateUI();
-                renderBible();
-                renderPrayers();
-                lucide.createIcons();
-            }
-
-            function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); }
-
-            // --- THEME ---
-            function setTheme(theme) {
-                appState.theme = theme; document.body.setAttribute('data-theme', theme);
-                const icon = document.getElementById('theme-icon');
-                icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
-                lucide.createIcons(); save();
-            }
-            document.getElementById('theme-toggle').onclick = () => setTheme(appState.theme === 'light' ? 'dark' : 'light');
-
-            // --- CALENDAR / SELECTOR PICKER LOGIC ---
-            function openCalendarPicker(target) {
-                appState.calendar.target = target;
-                document.getElementById('calendar-overlay').style.display = 'flex';
-
-                if (target === 'birth' || target === 'birthProfile') {
-                    document.getElementById('calendar-ui-group').style.display = 'none';
-                    document.getElementById('birth-ui-group').style.display = 'block';
-                    document.querySelector('.birth-selectors-grid').style.display = 'grid';
-                    document.getElementById('selector-modal-title').textContent = 'Fecha de Nacimiento';
-                    populateBirthSelectors();
-                } else {
-                    document.getElementById('calendar-ui-group').style.display = 'block';
-                    document.getElementById('birth-ui-group').style.display = 'none';
-                    document.querySelector('.birth-selectors-grid').style.display = 'none';
-                    document.getElementById('selector-modal-title').textContent = 'Seleccionar Día';
-
-                    let initialDate = new Date(appState.viewDate + "T12:00:00");
-                    appState.calendar.currentMonth = initialDate.getMonth();
-                    appState.calendar.currentYear = initialDate.getFullYear();
-                    appState.calendar.mode = 'days';
-                    renderCalendar();
-                }
-            }
-
-            function populateBirthSelectors() {
-                const selDay = document.getElementById('sel-day');
-                const selYear = document.getElementById('sel-year');
-                const selMonth = document.getElementById('sel-month');
-
-                selDay.innerHTML = '';
-                for (let i = 1; i <= 31; i++) {
-                    const o = document.createElement('option'); o.value = i; o.textContent = i;
-                    selDay.appendChild(o);
-                }
-
-                selYear.innerHTML = '';
-                const currentYear = new Date().getFullYear();
-                for (let i = currentYear; i >= currentYear - 100; i--) {
-                    const o = document.createElement('option'); o.value = i; o.textContent = i;
-                    selYear.appendChild(o);
-                }
-
-                // Set current known date if exists
-                if (appState.user && appState.user.birth) {
-                    const d = new Date(appState.user.birth + "T12:00:00");
-                    selDay.value = d.getDate();
-                    selMonth.value = d.getMonth();
-                    selYear.value = d.getFullYear();
-                }
-            }
-
-            function confirmBirthDate() {
-                const d = document.getElementById('sel-day').value;
-                const m = parseInt(document.getElementById('sel-month').value) + 1;
-                const y = document.getElementById('sel-year').value;
-                const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-
-                selectCalendarDate(dateStr);
-            }
-
-            function closeCalendarPicker() { document.getElementById('calendar-overlay').style.display = 'none'; }
-
-            function navCalendar(offset) {
-                if (appState.calendar.mode === 'years') {
-                    appState.calendar.currentYear += offset * 12;
-                } else {
-                    appState.calendar.currentMonth += offset;
-                    if (appState.calendar.currentMonth < 0) { appState.calendar.currentMonth = 11; appState.calendar.currentYear--; }
-                    if (appState.calendar.currentMonth > 11) { appState.calendar.currentMonth = 0; appState.calendar.currentYear++; }
-                }
-                renderCalendar();
-            }
-
-            function toggleYearMode() {
-                appState.calendar.mode = appState.calendar.mode === 'years' ? 'days' : 'years';
-                renderCalendar();
-            }
-
-            function selectYear(y) {
-                appState.calendar.currentYear = y;
-                appState.calendar.mode = 'days';
-                renderCalendar();
-            }
-
-            function renderCalendar() {
-                const grid = document.getElementById('calendar-days');
-                const titleText = document.getElementById('calendar-title-text');
-                const weekDays = document.querySelector('.calendar-weekdays');
-                grid.innerHTML = '';
-
-                if (appState.calendar.mode === 'years') {
-                    weekDays.style.display = 'none';
-                    const startYear = appState.calendar.currentYear - 6;
-                    titleText.textContent = `${startYear} - ${startYear + 11}`;
-                    grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-
-                    for (let i = 0; i < 12; i++) {
-                        const y = startYear + i;
-                        const dayDiv = document.createElement('div');
-                        dayDiv.className = 'calendar-day';
-                        dayDiv.style.height = '60px';
-                        dayDiv.textContent = y;
-                        if (y === appState.calendar.currentYear) dayDiv.classList.add('selected');
-                        dayDiv.onclick = () => selectYear(y);
-                        grid.appendChild(dayDiv);
-                    }
-                } else {
-                    weekDays.style.display = 'grid';
-                    grid.style.gridTemplateColumns = 'repeat(7, 1fr)';
-                    const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-                    titleText.textContent = `${monthNames[appState.calendar.currentMonth]} ${appState.calendar.currentYear}`;
-
-                    const firstDay = new Date(appState.calendar.currentYear, appState.calendar.currentMonth, 1).getDay();
-                    const daysInMonth = new Date(appState.calendar.currentYear, appState.calendar.currentMonth + 1, 0).getDate();
-                    const prevDaysInMonth = new Date(appState.calendar.currentYear, appState.calendar.currentMonth, 0).getDate();
-                    const todayStr = new Date().toISOString().split('T')[0];
-
-                    for (let i = firstDay; i > 0; i--) {
-                        const dayDiv = document.createElement('div');
-                        dayDiv.className = 'calendar-day prev-month';
-                        dayDiv.textContent = prevDaysInMonth - i + 1;
-                        grid.appendChild(dayDiv);
-                    }
-
-                    for (let i = 1; i <= daysInMonth; i++) {
-                        const dayDiv = document.createElement('div');
-                        const dateFull = `${appState.calendar.currentYear}-${String(appState.calendar.currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                        dayDiv.className = 'calendar-day';
-                        dayDiv.textContent = i;
-                        if (dateFull === todayStr) dayDiv.classList.add('today');
-                        if (appState.calendar.target === 'devotional' && dateFull > todayStr) {
-                            dayDiv.classList.add('disabled');
-                        } else {
-                            dayDiv.onclick = () => selectCalendarDate(dateFull);
-                        }
-                        if (appState.calendar.target === 'devotional') {
-                            if (appState.viewDate === dateFull) dayDiv.classList.add('selected');
-                            if (appState.devotionals[dateFull]) {
-                                const dev = appState.devotionals[dateFull];
-                                if (dev.o || dev.i || dev.a || dev.p) dayDiv.classList.add('has-content');
-                            }
-                        } else {
-                            if (appState.user && appState.user.birth === dateFull) dayDiv.classList.add('selected');
-                        }
-                        grid.appendChild(dayDiv);
-                    }
-                }
-                lucide.createIcons();
-            }
-
-            function selectCalendarDate(date) {
-                if (appState.calendar.target === 'devotional') {
-                    appState.viewDate = date;
-                    updateDateUI();
-                } else if (appState.calendar.target === 'birth') {
-                    appState.user = appState.user || {};
-                    appState.user.birth = date;
-                    document.getElementById('reg-birth-display').textContent = date;
-                } else if (appState.calendar.target === 'birthProfile') {
-                    appState.user.birth = date;
-                    document.getElementById('profile-birth-display').textContent = date;
-                }
-                closeCalendarPicker();
-            }
-
-            // --- ONBOARDING & PROFILE ---
-            let cameraTarget = ''; // 'reg' or 'profile'
-            let stream = null;
-
-            function openCameraUI(target) {
-                cameraTarget = target;
-                document.getElementById('camera-modal').style.display = 'flex';
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
-                    .then(s => {
-                        stream = s;
-                        document.getElementById('camera-stream').srcObject = s;
-                    })
-                    .catch(err => {
-                        alert('No se pudo acceder a la cámara. Revisa los permisos. 📷');
-                        closeCameraUI();
-                    });
-                lucide.createIcons();
-            }
-
-            function closeCameraUI() {
-                if (stream) {
-                    stream.getTracks().forEach(t => t.stop());
-                    stream = null;
-                }
-                document.getElementById('camera-modal').style.display = 'none';
-            }
-
-            function capturePhoto() {
-                const video = document.getElementById('camera-stream');
-                const canvas = document.getElementById('camera-canvas');
-                const context = canvas.getContext('2d');
-
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                const dataUrl = canvas.toDataURL('image/jpeg');
-                if (cameraTarget === 'reg') {
-                    const img = document.getElementById('reg-photo-preview');
-                    img.src = dataUrl;
-                    img.style.display = 'block';
-                    document.getElementById('reg-photo-icon').style.display = 'none';
-                } else if (cameraTarget === 'profile') {
-                    appState.user.photo = dataUrl;
-                    renderProfile();
-                }
-
-                closeCameraUI();
-            }
-
-            function finishOnboarding() {
-                const name = document.getElementById('reg-name').value;
-                const bD = document.getElementById('reg-birth-display').textContent;
-                const photo = document.getElementById('reg-photo-preview').src;
-                if (!name || bD === 'Seleccionar fecha') { alert("Por favor completa tu nombre y fecha."); return; }
-                appState.user = { name, birth: bD, photo: photo.startsWith('data:') ? photo : null };
-                save(); document.getElementById('onboarding-overlay').style.display = 'none';
+            if (!appState.user) {
+                document.getElementById('onboarding-overlay').style.display = 'flex';
+            } else {
                 renderProfile();
             }
 
-            function handleRegPhoto(input) {
-                if (input.files && input.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const img = document.getElementById('reg-photo-preview');
-                        img.src = e.target.result;
-                        img.style.display = 'block';
-                        document.getElementById('reg-photo-icon').style.display = 'none';
-                    };
-                    reader.readAsDataURL(input.files[0]);
+            setTheme(appState.theme);
+            updateDateUI();
+            renderBible();
+            renderPrayers();
+            lucide.createIcons();
+        }
+
+        function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); }
+
+        // --- THEME ---
+        function setTheme(theme) {
+            appState.theme = theme; document.body.setAttribute('data-theme', theme);
+            const icon = document.getElementById('theme-icon');
+            icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
+            lucide.createIcons(); save();
+        }
+        document.getElementById('theme-toggle').onclick = () => setTheme(appState.theme === 'light' ? 'dark' : 'light');
+
+        // --- CALENDAR / SELECTOR PICKER LOGIC ---
+        function openCalendarPicker(target) {
+            appState.calendar.target = target;
+            document.getElementById('calendar-overlay').style.display = 'flex';
+
+            if (target === 'birth' || target === 'birthProfile') {
+                document.getElementById('calendar-ui-group').style.display = 'none';
+                document.getElementById('birth-ui-group').style.display = 'block';
+                document.querySelector('.birth-selectors-grid').style.display = 'grid';
+                document.getElementById('selector-modal-title').textContent = 'Fecha de Nacimiento';
+                populateBirthSelectors();
+            } else {
+                document.getElementById('calendar-ui-group').style.display = 'block';
+                document.getElementById('birth-ui-group').style.display = 'none';
+                document.querySelector('.birth-selectors-grid').style.display = 'none';
+                document.getElementById('selector-modal-title').textContent = 'Seleccionar Día';
+
+                let initialDate = new Date(appState.viewDate + "T12:00:00");
+                appState.calendar.currentMonth = initialDate.getMonth();
+                appState.calendar.currentYear = initialDate.getFullYear();
+                appState.calendar.mode = 'days';
+                renderCalendar();
+            }
+        }
+
+        function populateBirthSelectors() {
+            const selDay = document.getElementById('sel-day');
+            const selYear = document.getElementById('sel-year');
+            const selMonth = document.getElementById('sel-month');
+
+            selDay.innerHTML = '';
+            for (let i = 1; i <= 31; i++) {
+                const o = document.createElement('option'); o.value = i; o.textContent = i;
+                selDay.appendChild(o);
+            }
+
+            selYear.innerHTML = '';
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear; i >= currentYear - 100; i--) {
+                const o = document.createElement('option'); o.value = i; o.textContent = i;
+                selYear.appendChild(o);
+            }
+
+            // Set current known date if exists
+            if (appState.user && appState.user.birth) {
+                const d = new Date(appState.user.birth + "T12:00:00");
+                selDay.value = d.getDate();
+                selMonth.value = d.getMonth();
+                selYear.value = d.getFullYear();
+            }
+        }
+
+        function confirmBirthDate() {
+            const d = document.getElementById('sel-day').value;
+            const m = parseInt(document.getElementById('sel-month').value) + 1;
+            const y = document.getElementById('sel-year').value;
+            const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+            selectCalendarDate(dateStr);
+        }
+
+        function closeCalendarPicker() { document.getElementById('calendar-overlay').style.display = 'none'; }
+
+        function navCalendar(offset) {
+            if (appState.calendar.mode === 'years') {
+                appState.calendar.currentYear += offset * 12;
+            } else {
+                appState.calendar.currentMonth += offset;
+                if (appState.calendar.currentMonth < 0) { appState.calendar.currentMonth = 11; appState.calendar.currentYear--; }
+                if (appState.calendar.currentMonth > 11) { appState.calendar.currentMonth = 0; appState.calendar.currentYear++; }
+            }
+            renderCalendar();
+        }
+
+        function toggleYearMode() {
+            appState.calendar.mode = appState.calendar.mode === 'years' ? 'days' : 'years';
+            renderCalendar();
+        }
+
+        function selectYear(y) {
+            appState.calendar.currentYear = y;
+            appState.calendar.mode = 'days';
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-days');
+            const titleText = document.getElementById('calendar-title-text');
+            const weekDays = document.querySelector('.calendar-weekdays');
+            grid.innerHTML = '';
+
+            if (appState.calendar.mode === 'years') {
+                weekDays.style.display = 'none';
+                const startYear = appState.calendar.currentYear - 6;
+                titleText.textContent = `${startYear} - ${startYear + 11}`;
+                grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+
+                for (let i = 0; i < 12; i++) {
+                    const y = startYear + i;
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'calendar-day';
+                    dayDiv.style.height = '60px';
+                    dayDiv.textContent = y;
+                    if (y === appState.calendar.currentYear) dayDiv.classList.add('selected');
+                    dayDiv.onclick = () => selectYear(y);
+                    grid.appendChild(dayDiv);
                 }
-            }
+            } else {
+                weekDays.style.display = 'grid';
+                grid.style.gridTemplateColumns = 'repeat(7, 1fr)';
+                const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+                titleText.textContent = `${monthNames[appState.calendar.currentMonth]} ${appState.calendar.currentYear}`;
 
-            function renderProfile() {
-                document.getElementById('user-greeting').textContent = `Hola, ${appState.user.name}`;
-                document.getElementById('profile-name').value = appState.user.name;
-                document.getElementById('profile-birth-display').textContent = appState.user.birth || 'Seleccionar';
+                const firstDay = new Date(appState.calendar.currentYear, appState.calendar.currentMonth, 1).getDay();
+                const daysInMonth = new Date(appState.calendar.currentYear, appState.calendar.currentMonth + 1, 0).getDate();
+                const prevDaysInMonth = new Date(appState.calendar.currentYear, appState.calendar.currentMonth, 0).getDate();
+                const todayStr = new Date().toISOString().split('T')[0];
 
-                const avatar = document.getElementById('header-avatar');
-                const preview = document.getElementById('photo-preview');
-                if (appState.user.photo) {
-                    const img = `<img src="${appState.user.photo}">`;
-                    avatar.innerHTML = img; preview.innerHTML = img;
-                } else {
-                    avatar.innerHTML = '<i data-lucide="user"></i>';
-                    preview.innerHTML = '<i data-lucide="camera" style="width:30px; opacity:0.5;"></i>';
-                    lucide.createIcons();
+                for (let i = firstDay; i > 0; i--) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'calendar-day prev-month';
+                    dayDiv.textContent = prevDaysInMonth - i + 1;
+                    grid.appendChild(dayDiv);
                 }
-            }
 
-            function previewPhoto(input) {
-                if (input.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => { appState.user.photo = e.target.result; renderProfile(); };
-                    reader.readAsDataURL(input.files[0]);
-                }
-            }
-
-            function updateProfile() {
-                appState.user.name = document.getElementById('profile-name').value;
-                save(); renderProfile();
-                showToast('Perfil actualizado ✨');
-                switchTab('devotional');
-            }
-
-            // --- TABS ---
-            function switchTab(tabId) {
-                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-                document.getElementById(`view-${tabId}`).classList.add('active');
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                document.getElementById(`nav-${tabId}`).classList.add('active');
-                if (tabId === 'devotional') updateDateUI();
-                if (tabId === 'bible') renderBible();
-                window.scrollTo(0, 0);
-            }
-
-
-
-            // --- DEVOTIONAL BIBLE SELECTOR LOGIC ---
-            let bibleSelection = { book: '', chapter: 0, vStart: 0, vEnd: 0 };
-            let isEditLocked = false;
-
-            function openBibleModal(type) {
-                if (isEditLocked) return;
-                if (type === 'chapter' && !bibleSelection.book) return;
-                if (type === 'verse' && (!bibleSelection.book || !bibleSelection.chapter)) return;
-
-                const modal = document.getElementById('bible-modal');
-                const content = document.getElementById('bible-modal-content');
-                const title = document.getElementById('bible-modal-title');
-                content.innerHTML = '';
-                modal.style.display = 'flex';
-
-                if (type === 'book') {
-                    title.textContent = 'Seleccionar Libro';
-                    BOOKS.forEach(b => {
-                        const btn = document.createElement('div');
-                        btn.className = 'book-item';
-                        btn.style.cursor = 'pointer';
-                        btn.innerHTML = `<div class="book-header"><strong>${b.n}</strong><span style="font-size:11px; opacity:0.6;">${b.c} caps</span></div>`;
-                        btn.onclick = () => selectBibleBook(b);
-                        content.appendChild(btn);
-                    });
-                } else if (type === 'chapter') {
-                    title.textContent = 'Seleccionar Capítulo';
-                    const book = BOOKS.find(b => b.n === bibleSelection.book);
-                    const grid = document.createElement('div');
-                    grid.className = 'chapter-pill-grid';
-                    grid.style.display = 'grid';
-                    for (let i = 1; i <= book.c; i++) {
-                        const pill = document.createElement('div');
-                        pill.className = 'chapter-pill';
-                        pill.textContent = i;
-                        if (i === bibleSelection.chapter) pill.classList.add('read');
-                        pill.onclick = () => selectBibleChapter(i);
-                        grid.appendChild(pill);
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const dayDiv = document.createElement('div');
+                    const dateFull = `${appState.calendar.currentYear}-${String(appState.calendar.currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                    dayDiv.className = 'calendar-day';
+                    dayDiv.textContent = i;
+                    if (dateFull === todayStr) dayDiv.classList.add('today');
+                    if (appState.calendar.target === 'devotional' && dateFull > todayStr) {
+                        dayDiv.classList.add('disabled');
+                    } else {
+                        dayDiv.onclick = () => selectCalendarDate(dateFull);
                     }
-                    content.appendChild(grid);
-                } else if (type === 'verse') {
-                    title.textContent = 'Seleccionar Versículos';
-                    const grid = document.createElement('div');
-                    grid.className = 'verse-pill-grid';
-                    // Most chapters don't exceed 100 verses, showing a safe range.
-                    for (let i = 1; i <= 100; i++) {
-                        const pill = document.createElement('div');
-                        pill.className = 'verse-pill';
-                        pill.textContent = i;
-                        updateVersePillClass(pill, i);
-                        pill.onclick = () => selectBibleVerse(i, pill);
-                        grid.appendChild(pill);
+                    if (appState.calendar.target === 'devotional') {
+                        if (appState.viewDate === dateFull) dayDiv.classList.add('selected');
+                        if (appState.devotionals[dateFull]) {
+                            const dev = appState.devotionals[dateFull];
+                            if (dev.o || dev.i || dev.a || dev.p) dayDiv.classList.add('has-content');
+                        }
+                    } else {
+                        if (appState.user && appState.user.birth === dateFull) dayDiv.classList.add('selected');
                     }
-                    content.appendChild(grid);
-                    const confirmBtn = document.createElement('button');
-                    confirmBtn.className = 'btn btn-primary btn-full';
-                    confirmBtn.style.marginTop = '20px';
-                    confirmBtn.textContent = 'Confirmar Versículos';
-                    confirmBtn.onclick = () => { closeBibleModal(); markUnsaved(); updateBibleCards(); };
-                    content.appendChild(confirmBtn);
+                    grid.appendChild(dayDiv);
                 }
+            }
+            lucide.createIcons();
+        }
+
+        function selectCalendarDate(date) {
+            if (appState.calendar.target === 'devotional') {
+                appState.viewDate = date;
+                updateDateUI();
+            } else if (appState.calendar.target === 'birth') {
+                appState.user = appState.user || {};
+                appState.user.birth = date;
+                document.getElementById('reg-birth-display').textContent = date;
+            } else if (appState.calendar.target === 'birthProfile') {
+                appState.user.birth = date;
+                document.getElementById('profile-birth-display').textContent = date;
+            }
+            closeCalendarPicker();
+        }
+
+        // --- ONBOARDING & PROFILE ---
+        let cameraTarget = ''; // 'reg' or 'profile'
+        let stream = null;
+
+        function openCameraUI(target) {
+            cameraTarget = target;
+            document.getElementById('camera-modal').style.display = 'flex';
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+                .then(s => {
+                    stream = s;
+                    document.getElementById('camera-stream').srcObject = s;
+                })
+                .catch(err => {
+                    alert('No se pudo acceder a la cámara. Revisa los permisos. 📷');
+                    closeCameraUI();
+                });
+            lucide.createIcons();
+        }
+
+        function closeCameraUI() {
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+                stream = null;
+            }
+            document.getElementById('camera-modal').style.display = 'none';
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('camera-stream');
+            const canvas = document.getElementById('camera-canvas');
+            const context = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            if (cameraTarget === 'reg') {
+                const img = document.getElementById('reg-photo-preview');
+                img.src = dataUrl;
+                img.style.display = 'block';
+                document.getElementById('reg-photo-icon').style.display = 'none';
+            } else if (cameraTarget === 'profile') {
+                appState.user.photo = dataUrl;
+                renderProfile();
+            }
+
+            closeCameraUI();
+        }
+
+        function finishOnboarding() {
+            const name = document.getElementById('reg-name').value;
+            const bD = document.getElementById('reg-birth-display').textContent;
+            const photo = document.getElementById('reg-photo-preview').src;
+            if (!name || bD === 'Seleccionar fecha') { alert("Por favor completa tu nombre y fecha."); return; }
+            appState.user = { name, birth: bD, photo: photo.startsWith('data:') ? photo : null };
+            save(); document.getElementById('onboarding-overlay').style.display = 'none';
+            renderProfile();
+        }
+
+        function handleRegPhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.getElementById('reg-photo-preview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById('reg-photo-icon').style.display = 'none';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function renderProfile() {
+            document.getElementById('user-greeting').textContent = `Hola, ${appState.user.name}`;
+            document.getElementById('profile-name').value = appState.user.name;
+            document.getElementById('profile-birth-display').textContent = appState.user.birth || 'Seleccionar';
+
+            const avatar = document.getElementById('header-avatar');
+            const preview = document.getElementById('photo-preview');
+            if (appState.user.photo) {
+                const img = `<img src="${appState.user.photo}">`;
+                avatar.innerHTML = img; preview.innerHTML = img;
+            } else {
+                avatar.innerHTML = '<i data-lucide="user"></i>';
+                preview.innerHTML = '<i data-lucide="camera" style="width:30px; opacity:0.5;"></i>';
                 lucide.createIcons();
             }
+        }
 
-            function closeBibleModal() { document.getElementById('bible-modal').style.display = 'none'; }
-
-            function selectBibleBook(book) {
-                bibleSelection.book = book.n;
-                bibleSelection.chapter = 0;
-                bibleSelection.vStart = 0;
-                bibleSelection.vEnd = 0;
-                updateBibleCards();
-                closeBibleModal();
-                openBibleModal('chapter');
+        function previewPhoto(input) {
+            if (input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => { appState.user.photo = e.target.result; renderProfile(); };
+                reader.readAsDataURL(input.files[0]);
             }
+        }
 
-            function selectBibleChapter(ch) {
-                bibleSelection.chapter = ch;
-                bibleSelection.vStart = 0;
-                bibleSelection.vEnd = 0;
-                updateBibleCards();
-                closeBibleModal();
-                openBibleModal('verse');
-            }
+        function updateProfile() {
+            appState.user.name = document.getElementById('profile-name').value;
+            save(); renderProfile();
+            showToast('Perfil actualizado ✨');
+            switchTab('devotional');
+        }
 
-            function selectBibleVerse(v, el) {
-                if (bibleSelection.vStart === 0 || (bibleSelection.vStart !== 0 && bibleSelection.vEnd !== 0)) {
-                    bibleSelection.vStart = v;
-                    bibleSelection.vEnd = 0;
-                } else {
-                    if (v < bibleSelection.vStart) {
-                        bibleSelection.vEnd = bibleSelection.vStart;
-                        bibleSelection.vStart = v;
-                    } else {
-                        bibleSelection.vEnd = v;
-                    }
-                }
-                // Refresh pills highlight
-                document.querySelectorAll('.verse-pill').forEach((p, idx) => {
-                    const vn = idx + 1;
-                    p.className = 'verse-pill';
-                    updateVersePillClass(p, vn);
+        // --- TABS ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${tabId}`).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(`nav-${tabId}`).classList.add('active');
+            if (tabId === 'devotional') updateDateUI();
+            if (tabId === 'bible') renderBible();
+            window.scrollTo(0, 0);
+        }
+
+
+
+        // --- DEVOTIONAL BIBLE SELECTOR LOGIC ---
+        let bibleSelection = { book: '', chapter: 0, vStart: 0, vEnd: 0 };
+        let isEditLocked = false;
+
+        function openBibleModal(type) {
+            if (isEditLocked) return;
+            if (type === 'chapter' && !bibleSelection.book) return;
+            if (type === 'verse' && (!bibleSelection.book || !bibleSelection.chapter)) return;
+
+            const modal = document.getElementById('bible-modal');
+            const content = document.getElementById('bible-modal-content');
+            const title = document.getElementById('bible-modal-title');
+            content.innerHTML = '';
+            modal.style.display = 'flex';
+
+            if (type === 'book') {
+                title.textContent = 'Seleccionar Libro';
+                BOOKS.forEach(b => {
+                    const btn = document.createElement('div');
+                    btn.className = 'book-item';
+                    btn.style.cursor = 'pointer';
+                    btn.innerHTML = `<div class="book-header"><strong>${b.n}</strong><span style="font-size:11px; opacity:0.6;">${b.c} caps</span></div>`;
+                    btn.onclick = () => selectBibleBook(b);
+                    content.appendChild(btn);
                 });
-            }
-
-            function updateVersePillClass(p, v) {
-                if (v === bibleSelection.vStart || v === bibleSelection.vEnd) p.classList.add('selected');
-                else if (bibleSelection.vEnd !== 0 && v > bibleSelection.vStart && v < bibleSelection.vEnd) p.classList.add('in-range');
-            }
-
-            function updateBibleCards() {
-                document.getElementById('card-book-text').textContent = bibleSelection.book || 'Seleccionar Libro';
-
-                const capCard = document.getElementById('card-chapter');
-                const capText = document.getElementById('card-chapter-text');
-                if (bibleSelection.book) {
-                    capCard.classList.remove('disabled');
-                    capText.textContent = bibleSelection.chapter ? `Capítulo ${bibleSelection.chapter}` : 'Capítulo';
-                } else {
-                    capCard.classList.add('disabled');
-                    capText.textContent = 'Capítulo';
+            } else if (type === 'chapter') {
+                title.textContent = 'Seleccionar Capítulo';
+                const book = BOOKS.find(b => b.n === bibleSelection.book);
+                const grid = document.createElement('div');
+                grid.className = 'chapter-pill-grid';
+                grid.style.display = 'grid';
+                for (let i = 1; i <= book.c; i++) {
+                    const pill = document.createElement('div');
+                    pill.className = 'chapter-pill';
+                    pill.textContent = i;
+                    if (i === bibleSelection.chapter) pill.classList.add('read');
+                    pill.onclick = () => selectBibleChapter(i);
+                    grid.appendChild(pill);
                 }
+                content.appendChild(grid);
+            } else if (type === 'verse') {
+                title.textContent = 'Seleccionar Versículos';
+                const grid = document.createElement('div');
+                grid.className = 'verse-pill-grid';
+                // Most chapters don't exceed 100 verses, showing a safe range.
+                for (let i = 1; i <= 100; i++) {
+                    const pill = document.createElement('div');
+                    pill.className = 'verse-pill';
+                    pill.textContent = i;
+                    updateVersePillClass(pill, i);
+                    pill.onclick = () => selectBibleVerse(i, pill);
+                    grid.appendChild(pill);
+                }
+                content.appendChild(grid);
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = 'btn btn-primary btn-full';
+                confirmBtn.style.marginTop = '20px';
+                confirmBtn.textContent = 'Confirmar Versículos';
+                confirmBtn.onclick = () => { closeBibleModal(); markUnsaved(); updateBibleCards(); };
+                content.appendChild(confirmBtn);
+            }
+            lucide.createIcons();
+        }
 
-                const vsCard = document.getElementById('card-verse');
-                const vsText = document.getElementById('card-verse-text');
-                if (bibleSelection.chapter > 0) {
-                    vsCard.classList.remove('disabled');
-                    if (bibleSelection.vStart > 0) {
-                        vsText.textContent = bibleSelection.vEnd > 0 ? `Vrs ${bibleSelection.vStart}-${bibleSelection.vEnd}` : `Versículo ${bibleSelection.vStart}`;
-                    } else {
-                        vsText.textContent = 'Versículos';
-                    }
+        function closeBibleModal() { document.getElementById('bible-modal').style.display = 'none'; }
+
+        function selectBibleBook(book) {
+            bibleSelection.book = book.n;
+            bibleSelection.chapter = 0;
+            bibleSelection.vStart = 0;
+            bibleSelection.vEnd = 0;
+            updateBibleCards();
+            closeBibleModal();
+            openBibleModal('chapter');
+        }
+
+        function selectBibleChapter(ch) {
+            bibleSelection.chapter = ch;
+            bibleSelection.vStart = 0;
+            bibleSelection.vEnd = 0;
+            updateBibleCards();
+            closeBibleModal();
+            openBibleModal('verse');
+        }
+
+        function selectBibleVerse(v, el) {
+            if (bibleSelection.vStart === 0 || (bibleSelection.vStart !== 0 && bibleSelection.vEnd !== 0)) {
+                bibleSelection.vStart = v;
+                bibleSelection.vEnd = 0;
+            } else {
+                if (v < bibleSelection.vStart) {
+                    bibleSelection.vEnd = bibleSelection.vStart;
+                    bibleSelection.vStart = v;
                 } else {
-                    vsCard.classList.add('disabled');
+                    bibleSelection.vEnd = v;
+                }
+            }
+            // Refresh pills highlight
+            document.querySelectorAll('.verse-pill').forEach((p, idx) => {
+                const vn = idx + 1;
+                p.className = 'verse-pill';
+                updateVersePillClass(p, vn);
+            });
+        }
+
+        function updateVersePillClass(p, v) {
+            if (v === bibleSelection.vStart || v === bibleSelection.vEnd) p.classList.add('selected');
+            else if (bibleSelection.vEnd !== 0 && v > bibleSelection.vStart && v < bibleSelection.vEnd) p.classList.add('in-range');
+        }
+
+        function updateBibleCards() {
+            document.getElementById('card-book-text').textContent = bibleSelection.book || 'Seleccionar Libro';
+
+            const capCard = document.getElementById('card-chapter');
+            const capText = document.getElementById('card-chapter-text');
+            if (bibleSelection.book) {
+                capCard.classList.remove('disabled');
+                capText.textContent = bibleSelection.chapter ? `Capítulo ${bibleSelection.chapter}` : 'Capítulo';
+            } else {
+                capCard.classList.add('disabled');
+                capText.textContent = 'Capítulo';
+            }
+
+            const vsCard = document.getElementById('card-verse');
+            const vsText = document.getElementById('card-verse-text');
+            if (bibleSelection.chapter > 0) {
+                vsCard.classList.remove('disabled');
+                if (bibleSelection.vStart > 0) {
+                    vsText.textContent = bibleSelection.vEnd > 0 ? `Vrs ${bibleSelection.vStart}-${bibleSelection.vEnd}` : `Versículo ${bibleSelection.vStart}`;
+                } else {
                     vsText.textContent = 'Versículos';
                 }
+            } else {
+                vsCard.classList.add('disabled');
+                vsText.textContent = 'Versículos';
+            }
+        }
+
+        function changeDate(offset) {
+            const d = new Date(appState.viewDate + "T12:00:00");
+            d.setDate(d.getDate() + offset);
+            const str = d.toISOString().split('T')[0];
+            const today = new Date().toISOString().split('T')[0];
+            if (str > today) return;
+            appState.viewDate = str; updateDateUI();
+        }
+
+        function updateDateUI() {
+            const d = new Date(appState.viewDate + "T12:00:00");
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('header-date').textContent = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+            document.getElementById('date-display-trigger').textContent = appState.viewDate === today ? 'Hoy' : d.toLocaleDateString('es-ES', options);
+            document.getElementById('next-date-btn').disabled = appState.viewDate === today;
+
+            const entry = appState.devotionals[appState.viewDate] || { book: '', ch: '', vs: '', o: '', i: '', a: '', p: '' };
+
+            // Sync with new selection system
+            bibleSelection.book = entry.book || '';
+            bibleSelection.chapter = parseInt(entry.ch) || 0;
+            if (entry.vs) {
+                const parts = entry.vs.split('-');
+                bibleSelection.vStart = parseInt(parts[0]) || 0;
+                bibleSelection.vEnd = parts[1] ? parseInt(parts[1]) : 0;
+            } else {
+                bibleSelection.vStart = 0; bibleSelection.vEnd = 0;
+            }
+            updateBibleCards();
+
+            document.getElementById('dev-o').value = entry.o;
+            document.getElementById('dev-i').value = entry.i;
+            document.getElementById('dev-a').value = entry.a;
+            document.getElementById('dev-p').value = entry.p;
+
+            // Lock logic for old entries
+            const hasContent = entry.book || entry.o || entry.i || entry.a || entry.p;
+            const isPast = appState.viewDate < today;
+
+            if (isPast && hasContent) {
+                setEditLock(true);
+            } else {
+                setEditLock(false);
             }
 
-            function changeDate(offset) {
-                const d = new Date(appState.viewDate + "T12:00:00");
-                d.setDate(d.getDate() + offset);
-                const str = d.toISOString().split('T')[0];
-                const today = new Date().toISOString().split('T')[0];
-                if (str > today) return;
-                appState.viewDate = str; updateDateUI();
-            }
-
-            function updateDateUI() {
-                const d = new Date(appState.viewDate + "T12:00:00");
-                const options = { weekday: 'long', day: 'numeric', month: 'long' };
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('header-date').textContent = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
-                document.getElementById('date-display-trigger').textContent = appState.viewDate === today ? 'Hoy' : d.toLocaleDateString('es-ES', options);
-                document.getElementById('next-date-btn').disabled = appState.viewDate === today;
-
-                const entry = appState.devotionals[appState.viewDate] || { book: '', ch: '', vs: '', o: '', i: '', a: '', p: '' };
-
-                // Sync with new selection system
-                bibleSelection.book = entry.book || '';
-                bibleSelection.chapter = parseInt(entry.ch) || 0;
-                if (entry.vs) {
-                    const parts = entry.vs.split('-');
-                    bibleSelection.vStart = parseInt(parts[0]) || 0;
-                    bibleSelection.vEnd = parts[1] ? parseInt(parts[1]) : 0;
-                } else {
-                    bibleSelection.vStart = 0; bibleSelection.vEnd = 0;
-                }
-                updateBibleCards();
-
-                document.getElementById('dev-o').value = entry.o;
-                document.getElementById('dev-i').value = entry.i;
-                document.getElementById('dev-a').value = entry.a;
-                document.getElementById('dev-p').value = entry.p;
-
-                // Lock logic for old entries
-                const hasContent = entry.book || entry.o || entry.i || entry.a || entry.p;
-                const isPast = appState.viewDate < today;
-
-                if (isPast && hasContent) {
-                    setEditLock(true);
-                } else {
-                    setEditLock(false);
-                }
-
-                if (!isEditLocked) {
-                    const fab = document.getElementById('save-fab');
-                    fab.className = 'fab-saved';
-                    document.getElementById('save-fab-icon').setAttribute('data-lucide', 'check');
-                    validateDevotionalForm();
-                }
-                lucide.createIcons();
-            }
-
-            function setEditLock(locked) {
-                isEditLocked = locked;
-                const view = document.getElementById('view-devotional');
+            if (!isEditLocked) {
                 const fab = document.getElementById('save-fab');
-                const icon = document.getElementById('save-fab-icon');
-
-                if (locked) {
-                    view.classList.add('view-locked');
-                    fab.className = 'fab-locked';
-                    fab.disabled = false;
-                    icon.setAttribute('data-lucide', 'lock');
-                } else {
-                    view.classList.remove('view-locked');
-                    fab.className = 'fab-unsaved';
-                    icon.setAttribute('data-lucide', 'save');
-                    validateDevotionalForm();
-                }
-                lucide.createIcons();
-            }
-
-            function toggleEdit() {
-                setEditLock(!isEditLocked);
-            }
-
-            function markUnsaved() {
-                const fab = document.getElementById('save-fab');
-                fab.className = 'fab-unsaved';
-                document.getElementById('save-fab-icon').setAttribute('data-lucide', 'save');
+                fab.className = 'fab-saved';
+                document.getElementById('save-fab-icon').setAttribute('data-lucide', 'check');
                 validateDevotionalForm();
-                lucide.createIcons();
+            }
+            lucide.createIcons();
+        }
+
+        function setEditLock(locked) {
+            isEditLocked = locked;
+            const view = document.getElementById('view-devotional');
+            const fab = document.getElementById('save-fab');
+            const icon = document.getElementById('save-fab-icon');
+
+            if (locked) {
+                view.classList.add('view-locked');
+                fab.className = 'fab-locked';
+                fab.disabled = false;
+                icon.setAttribute('data-lucide', 'lock');
+            } else {
+                view.classList.remove('view-locked');
+                fab.className = 'fab-unsaved';
+                icon.setAttribute('data-lucide', 'save');
+                validateDevotionalForm();
+            }
+            lucide.createIcons();
+        }
+
+        function toggleEdit() {
+            setEditLock(!isEditLocked);
+        }
+
+        function markUnsaved() {
+            const fab = document.getElementById('save-fab');
+            fab.className = 'fab-unsaved';
+            document.getElementById('save-fab-icon').setAttribute('data-lucide', 'save');
+            validateDevotionalForm();
+            lucide.createIcons();
+        }
+
+        function validateDevotionalForm() {
+            const fab = document.getElementById('save-fab');
+            const isBibleComplete = bibleSelection.book && bibleSelection.chapter > 0 && bibleSelection.vStart > 0;
+            const isOIAComplete = document.getElementById('dev-o').value.trim() !== '' &&
+                document.getElementById('dev-i').value.trim() !== '' &&
+                document.getElementById('dev-a').value.trim() !== '' &&
+                document.getElementById('dev-p').value.trim() !== '';
+
+            if (isBibleComplete && isOIAComplete) {
+                fab.classList.remove('fab-disabled');
+                fab.disabled = false;
+            } else {
+                fab.classList.add('fab-disabled');
+                fab.disabled = true;
+            }
+        }
+
+        function saveDevotional() {
+            if (isEditLocked) {
+                toggleEdit();
+                return;
             }
 
-            function validateDevotionalForm() {
-                const fab = document.getElementById('save-fab');
-                const isBibleComplete = bibleSelection.book && bibleSelection.chapter > 0 && bibleSelection.vStart > 0;
-                const isOIAComplete = document.getElementById('dev-o').value.trim() !== '' &&
-                    document.getElementById('dev-i').value.trim() !== '' &&
-                    document.getElementById('dev-a').value.trim() !== '' &&
-                    document.getElementById('dev-p').value.trim() !== '';
+            const isBibleComplete = bibleSelection.book && bibleSelection.chapter > 0 && bibleSelection.vStart > 0;
+            const isOIAComplete = document.getElementById('dev-o').value.trim() !== '' &&
+                document.getElementById('dev-i').value.trim() !== '' &&
+                document.getElementById('dev-a').value.trim() !== '' &&
+                document.getElementById('dev-p').value.trim() !== '';
 
-                if (isBibleComplete && isOIAComplete) {
-                    fab.classList.remove('fab-disabled');
-                    fab.disabled = false;
-                } else {
-                    fab.classList.add('fab-disabled');
-                    fab.disabled = true;
-                }
+            if (!isBibleComplete || !isOIAComplete) {
+                alert("Por favor, completa todos los campos antes de guardar. 🙏");
+                return;
             }
 
-            function saveDevotional() {
-                if (isEditLocked) {
-                    toggleEdit();
-                    return;
-                }
+            const vsStr = bibleSelection.vStart > 0 ? (bibleSelection.vEnd > 0 ? `${bibleSelection.vStart}-${bibleSelection.vEnd}` : `${bibleSelection.vStart}`) : '';
+            appState.devotionals[appState.viewDate] = {
+                book: bibleSelection.book,
+                ch: bibleSelection.chapter,
+                vs: vsStr,
+                o: document.getElementById('dev-o').value,
+                i: document.getElementById('dev-i').value,
+                a: document.getElementById('dev-a').value,
+                p: document.getElementById('dev-p').value
+            };
+            save(); updateDateUI();
+            if (navigator.vibrate) navigator.vibrate(40);
+        }
 
-                const isBibleComplete = bibleSelection.book && bibleSelection.chapter > 0 && bibleSelection.vStart > 0;
-                const isOIAComplete = document.getElementById('dev-o').value.trim() !== '' &&
-                    document.getElementById('dev-i').value.trim() !== '' &&
-                    document.getElementById('dev-a').value.trim() !== '' &&
-                    document.getElementById('dev-p').value.trim() !== '';
-
-                if (!isBibleComplete || !isOIAComplete) {
-                    alert("Por favor, completa todos los campos antes de guardar. 🙏");
-                    return;
-                }
-
-                const vsStr = bibleSelection.vStart > 0 ? (bibleSelection.vEnd > 0 ? `${bibleSelection.vStart}-${bibleSelection.vEnd}` : `${bibleSelection.vStart}`) : '';
-                appState.devotionals[appState.viewDate] = {
-                    book: bibleSelection.book,
-                    ch: bibleSelection.chapter,
-                    vs: vsStr,
-                    o: document.getElementById('dev-o').value,
-                    i: document.getElementById('dev-i').value,
-                    a: document.getElementById('dev-a').value,
-                    p: document.getElementById('dev-p').value
-                };
-                save(); updateDateUI();
-                if (navigator.vibrate) navigator.vibrate(40);
-            }
-
-            // --- BIBLE LOGIC ---
-            function renderBible() {
-                const ot = document.getElementById('ot-container');
-                const nt = document.getElementById('nt-container');
-                ot.innerHTML = ''; nt.innerHTML = '';
-                let totalRead = 0; const totalChapters = 1189;
-                BOOKS.forEach(b => {
-                    const read = appState.reading[b.id] || [];
-                    totalRead += read.length;
-                    const pct = Math.round((read.length / b.c) * 100);
-                    const card = document.createElement('div');
-                    card.className = `book-item ${pct === 100 ? 'completed' : pct > 0 ? 'started' : ''}`;
-                    card.innerHTML = `
+        // --- BIBLE LOGIC ---
+        function renderBible() {
+            const ot = document.getElementById('ot-container');
+            const nt = document.getElementById('nt-container');
+            ot.innerHTML = ''; nt.innerHTML = '';
+            let totalRead = 0; const totalChapters = 1189;
+            BOOKS.forEach(b => {
+                const read = appState.reading[b.id] || [];
+                totalRead += read.length;
+                const pct = Math.round((read.length / b.c) * 100);
+                const card = document.createElement('div');
+                card.className = `book-item ${pct === 100 ? 'completed' : pct > 0 ? 'started' : ''}`;
+                card.innerHTML = `
                     <div class="book-header" onclick="toggleChapters(${b.id})">
                         <div>
                             <strong style="font-size: 16px;">${b.n}</strong>
@@ -1927,50 +1928,50 @@
                         ${Array.from({ length: b.c }, (_, i) => { const cn = i + 1; const isR = read.includes(cn); return `<div class="chapter-pill ${isR ? 'read' : ''}" onclick="toggleCh(${b.id}, ${cn})">${cn}</div>`; }).join('')}
                     </div>
                 `; (b.nt ? nt : ot).appendChild(card);
-                });
-                const globPct = Math.round((totalRead / totalChapters) * 100);
-                document.getElementById('total-pct').textContent = globPct;
-                document.getElementById('total-progress-bar').style.width = globPct + '%';
-            }
-            function toggleChapters(id) {
-                const el = document.getElementById(`ch-grid-${id}`);
-                const visible = el.style.display === 'grid';
-                document.querySelectorAll('.chapter-pill-grid').forEach(g => g.style.display = 'none');
-                el.style.display = visible ? 'none' : 'grid';
-            }
-            function toggleCh(bid, c) {
-                if (!appState.reading[bid]) appState.reading[bid] = [];
-                const idx = appState.reading[bid].indexOf(c);
-                if (idx > -1) appState.reading[bid].splice(idx, 1);
-                else appState.reading[bid].push(c);
-                save(); renderBible(); document.getElementById(`ch-grid-${bid}`).style.display = 'grid';
-            }
-            function markWholeBook(bid, check) {
-                const b = BOOKS.find(x => x.id === bid);
-                appState.reading[bid] = check ? Array.from({ length: b.c }, (_, i) => i + 1) : [];
-                save(); renderBible(); document.getElementById(`ch-grid-${bid}`).style.display = 'grid';
-            }
+            });
+            const globPct = Math.round((totalRead / totalChapters) * 100);
+            document.getElementById('total-pct').textContent = globPct;
+            document.getElementById('total-progress-bar').style.width = globPct + '%';
+        }
+        function toggleChapters(id) {
+            const el = document.getElementById(`ch-grid-${id}`);
+            const visible = el.style.display === 'grid';
+            document.querySelectorAll('.chapter-pill-grid').forEach(g => g.style.display = 'none');
+            el.style.display = visible ? 'none' : 'grid';
+        }
+        function toggleCh(bid, c) {
+            if (!appState.reading[bid]) appState.reading[bid] = [];
+            const idx = appState.reading[bid].indexOf(c);
+            if (idx > -1) appState.reading[bid].splice(idx, 1);
+            else appState.reading[bid].push(c);
+            save(); renderBible(); document.getElementById(`ch-grid-${bid}`).style.display = 'grid';
+        }
+        function markWholeBook(bid, check) {
+            const b = BOOKS.find(x => x.id === bid);
+            appState.reading[bid] = check ? Array.from({ length: b.c }, (_, i) => i + 1) : [];
+            save(); renderBible(); document.getElementById(`ch-grid-${bid}`).style.display = 'grid';
+        }
 
-            // --- PRAYER LOGIC ---
-            function openPrayerModal() { document.getElementById('prayer-modal').style.display = 'flex'; }
-            function closePrayerModal() { document.getElementById('prayer-modal').style.display = 'none'; }
-            function addPrayer() {
-                const t = document.getElementById('p-title').value; const d = document.getElementById('p-details').value;
-                if (!t) return;
-                appState.prayers.push({ id: Date.now(), title: t, details: d, created: new Date().toISOString(), responded: null, status: 'active' });
-                save(); renderPrayers(); closePrayerModal();
-                document.getElementById('p-title').value = ''; document.getElementById('p-details').value = '';
-            }
-            function renderPrayers() {
-                const active = document.getElementById('prayers-active'); const done = document.getElementById('prayers-answered');
-                active.innerHTML = ''; done.innerHTML = '';
-                const todayStr = new Date().toISOString().split('T')[0];
+        // --- PRAYER LOGIC ---
+        function openPrayerModal() { document.getElementById('prayer-modal').style.display = 'flex'; }
+        function closePrayerModal() { document.getElementById('prayer-modal').style.display = 'none'; }
+        function addPrayer() {
+            const t = document.getElementById('p-title').value; const d = document.getElementById('p-details').value;
+            if (!t) return;
+            appState.prayers.push({ id: Date.now(), title: t, details: d, created: new Date().toISOString(), responded: null, status: 'active' });
+            save(); renderPrayers(); closePrayerModal();
+            document.getElementById('p-title').value = ''; document.getElementById('p-details').value = '';
+        }
+        function renderPrayers() {
+            const active = document.getElementById('prayers-active'); const done = document.getElementById('prayers-answered');
+            active.innerHTML = ''; done.innerHTML = '';
+            const todayStr = new Date().toISOString().split('T')[0];
 
-                appState.prayers.forEach(p => {
-                    const card = document.createElement('div'); card.className = 'prayer-tile'; const cDate = new Date(p.created).toLocaleDateString();
-                    if (p.status === 'active') {
-                        const prayedToday = p.lastPrayed === todayStr;
-                        card.innerHTML = `
+            appState.prayers.forEach(p => {
+                const card = document.createElement('div'); card.className = 'prayer-tile'; const cDate = new Date(p.created).toLocaleDateString();
+                if (p.status === 'active') {
+                    const prayedToday = p.lastPrayed === todayStr;
+                    card.innerHTML = `
                         <h3><i data-lucide="circle"></i> ${p.title}</h3>
                         <div class="prayer-meta">Iniciada el ${cDate}</div>
                         <p style="font-size: 14px; color: var(--text-muted);">${p.details || ''}</p>
@@ -1980,41 +1981,41 @@
                             </button>
                             <button class="btn btn-primary" onclick="markAnswered(${p.id})">Respondida</button>
                         </div>`;
-                        active.prepend(card);
-                    } else {
-                        const days = Math.floor((new Date(p.responded) - new Date(p.created)) / 86400000);
-                        card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><h3><i data-lucide="check-circle" style="color:var(--success)"></i> ${p.title}</h3><div class="prayer-meta">Respondida después de ${days} días</div></div><button onclick="restorePrayer(${p.id})" style="background:none; border:none; color:var(--text-muted);"><i data-lucide="rotate-ccw"></i></button></div>`;
-                        done.prepend(card);
-                    }
-                });
-                lucide.createIcons();
-            }
-            function markAnswered(id) { const p = appState.prayers.find(x => x.id === id); p.status = 'answered'; p.responded = new Date().toISOString(); save(); renderPrayers(); }
-            function restorePrayer(id) { const p = appState.prayers.find(x => x.id === id); p.status = 'active'; p.responded = null; save(); renderPrayers(); }
+                    active.prepend(card);
+                } else {
+                    const days = Math.floor((new Date(p.responded) - new Date(p.created)) / 86400000);
+                    card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><h3><i data-lucide="check-circle" style="color:var(--success)"></i> ${p.title}</h3><div class="prayer-meta">Respondida después de ${days} días</div></div><button onclick="restorePrayer(${p.id})" style="background:none; border:none; color:var(--text-muted);"><i data-lucide="rotate-ccw"></i></button></div>`;
+                    done.prepend(card);
+                }
+            });
+            lucide.createIcons();
+        }
+        function markAnswered(id) { const p = appState.prayers.find(x => x.id === id); p.status = 'answered'; p.responded = new Date().toISOString(); save(); renderPrayers(); }
+        function restorePrayer(id) { const p = appState.prayers.find(x => x.id === id); p.status = 'active'; p.responded = null; save(); renderPrayers(); }
 
-            function markPrayedToday(id) {
-                const p = appState.prayers.find(x => x.id === id);
-                const todayStr = new Date().toISOString().split('T')[0];
-                if (p.lastPrayed === todayStr) return; // Already prayed
+        function markPrayedToday(id) {
+            const p = appState.prayers.find(x => x.id === id);
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (p.lastPrayed === todayStr) return; // Already prayed
 
-                p.lastPrayed = todayStr;
-                save();
-                renderPrayers();
-                if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
-            }
+            p.lastPrayed = todayStr;
+            save();
+            renderPrayers();
+            if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+        }
 
 
-            init();
+        init();
 
-            // PWA Service Worker Registration
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('./sw.js')
-                        .then(reg => console.log('SW Registered'))
-                        .catch(err => console.log('SW Failed', err));
-                });
-            }
-        </script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW Registered'))
+                    .catch(err => console.log('SW Failed', err));
+            });
+        }
+    </script>
 </body>
 
 </html>
