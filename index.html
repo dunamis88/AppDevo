@@ -8,7 +8,7 @@
     <title>Mi Devocional</title>
     <!-- SEO & PWA Meta -->
     <meta name="description" content="Tu compañero diario para el devocional, lectura bíblica y oración. 100% offline.">
-    <meta name="theme-color" content="#6E56CF">
+    <meta name="theme-color" id="meta-theme-color" content="#2D294D">
     <link rel="manifest" href="manifest.json">
 
     <!-- Fonts -->
@@ -374,9 +374,9 @@
             position: fixed;
             bottom: 100px;
             right: 24px;
-            width: 64px;
-            height: 64px;
-            border-radius: 22px;
+            width: 58px;
+            height: 58px;
+            border-radius: 19px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -390,7 +390,7 @@
 
         .fab-unsaved {
             background: var(--secondary);
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
         .fab-saved {
@@ -948,6 +948,21 @@
             }
         }
 
+        @keyframes slideSheetOut {
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(100%);
+            }
+        }
+
+        .modal-sheet.closing,
+        .calendar-card.closing {
+            animation: slideSheetOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
         /* Profile Photo */
         .photo-picker {
             width: 90px;
@@ -1287,7 +1302,42 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal-sheet" style="padding-bottom: 30px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div
+                    style="width: 60px; height: 60px; background: rgba(255, 71, 87, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                    <i data-lucide="trash-2" style="color: #ff4757; width: 30px; height: 30px;"></i>
+                </div>
+                <h3 style="font-size: 20px; margin-bottom: 10px;">¿Eliminar Oración?</h3>
+                <p style="color: var(--text-muted); font-size: 14px; line-height: 1.5;">Esta acción no se puede
+                    deshacer. La oración será borrada permanentemente.</p>
+            </div>
+            <div style="display: grid; gap: 12px;">
+                <button class="btn btn-primary" style="background: #ff4757; border-color: #ff4757;"
+                    id="btn-confirm-delete">Sí, eliminar</button>
+                <button class="btn btn-outline" onclick="closeConfirmModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // --- MODAL UTILS ---
+        function closeModalWithAnim(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            const content = modal.querySelector('.modal-sheet') || modal.querySelector('.calendar-card');
+            if (content) {
+                content.classList.add('closing');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    content.classList.remove('closing');
+                }, 350);
+            } else {
+                modal.style.display = 'none';
+            }
+        }
+
         // --- TOAST NOTIFICATIONS ---
         function showToast(msg, icon = 'check-circle') {
             const container = document.getElementById('toast-container');
@@ -1341,10 +1391,18 @@
 
         // --- THEME ---
         function setTheme(theme) {
-            appState.theme = theme; document.body.setAttribute('data-theme', theme);
+            appState.theme = theme;
+            document.body.setAttribute('data-theme', theme);
+
+            // Sincronizar barras del sistema (Status bar y Nav bar)
+            const metaTheme = document.getElementById('meta-theme-color');
+            const themeColor = theme === 'dark' ? '#2D294D' : '#F8F9FD';
+            if (metaTheme) metaTheme.setAttribute('content', themeColor);
+
             const icon = document.getElementById('theme-icon');
             icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
-            lucide.createIcons(); save();
+            lucide.createIcons();
+            save();
         }
         document.getElementById('theme-toggle').onclick = () => setTheme(appState.theme === 'light' ? 'dark' : 'light');
 
@@ -1409,7 +1467,7 @@
             selectCalendarDate(dateStr);
         }
 
-        function closeCalendarPicker() { document.getElementById('calendar-overlay').style.display = 'none'; }
+        function closeCalendarPicker() { closeModalWithAnim('calendar-overlay'); }
 
         function navCalendar(offset) {
             if (appState.calendar.mode === 'years') {
@@ -1538,7 +1596,7 @@
                 stream.getTracks().forEach(t => t.stop());
                 stream = null;
             }
-            document.getElementById('camera-modal').style.display = 'none';
+            closeModalWithAnim('camera-modal');
         }
 
         function capturePhoto() {
@@ -1696,7 +1754,7 @@
             lucide.createIcons();
         }
 
-        function closeBibleModal() { document.getElementById('bible-modal').style.display = 'none'; }
+        function closeBibleModal() { closeModalWithAnim('bible-modal'); }
 
         function selectBibleBook(book) {
             bibleSelection.book = book.n;
@@ -1959,7 +2017,7 @@
 
         // --- PRAYER LOGIC ---
         function openPrayerModal() { document.getElementById('prayer-modal').style.display = 'flex'; }
-        function closePrayerModal() { document.getElementById('prayer-modal').style.display = 'none'; }
+        function closePrayerModal() { closeModalWithAnim('prayer-modal'); }
         function addPrayer() {
             const t = document.getElementById('p-title').value; const d = document.getElementById('p-details').value;
             if (!t) return;
@@ -1977,8 +2035,13 @@
                 if (p.status === 'active') {
                     const prayedToday = p.lastPrayed === todayStr;
                     card.innerHTML = `
-                        <h3><i data-lucide="circle"></i> ${p.title}</h3>
-                        <div class="prayer-meta">Iniciada el ${cDate}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div style="flex:1;">
+                                <h3><i data-lucide="circle"></i> ${p.title}</h3>
+                                <div class="prayer-meta">Iniciada el ${cDate}</div>
+                            </div>
+                            <button onclick="deletePrayer(${p.id})" style="background:none; border:none; color:var(--text-muted); opacity:0.6; padding:5px;"><i data-lucide="trash-2" style="width:18px;"></i></button>
+                        </div>
                         <p style="font-size: 14px; color: var(--text-muted);">${p.details || ''}</p>
                         <div class="prayer-btns">
                             <button class="btn btn-outline ${prayedToday ? 'btn-prayed' : ''}" onclick="markPrayedToday(${p.id})">
@@ -1989,7 +2052,16 @@
                     active.prepend(card);
                 } else {
                     const days = Math.floor((new Date(p.responded) - new Date(p.created)) / 86400000);
-                    card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><h3><i data-lucide="check-circle" style="color:var(--success)"></i> ${p.title}</h3><div class="prayer-meta">Respondida después de ${days} días</div></div><button onclick="restorePrayer(${p.id})" style="background:none; border:none; color:var(--text-muted);"><i data-lucide="rotate-ccw"></i></button></div>`;
+                    card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div style="flex:1;">
+                            <h3><i data-lucide="check-circle" style="color:var(--success)"></i> ${p.title}</h3>
+                            <div class="prayer-meta">Respondida después de ${days} días</div>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button onclick="restorePrayer(${p.id})" style="background:none; border:none; color:var(--text-muted);"><i data-lucide="rotate-ccw" style="width:18px;"></i></button>
+                            <button onclick="deletePrayer(${p.id})" style="background:none; border:none; color:var(--text-muted); opacity:0.6;"><i data-lucide="trash-2" style="width:18px;"></i></button>
+                        </div>
+                    </div>`;
                     done.prepend(card);
                 }
             });
@@ -1997,6 +2069,20 @@
         }
         function markAnswered(id) { const p = appState.prayers.find(x => x.id === id); p.status = 'answered'; p.responded = new Date().toISOString(); save(); renderPrayers(); }
         function restorePrayer(id) { const p = appState.prayers.find(x => x.id === id); p.status = 'active'; p.responded = null; save(); renderPrayers(); }
+
+        function deletePrayer(id) {
+            const modal = document.getElementById('confirm-modal');
+            const btn = document.getElementById('btn-confirm-delete');
+            modal.style.display = 'flex';
+            btn.onclick = () => {
+                appState.prayers = appState.prayers.filter(p => p.id !== id);
+                save();
+                renderPrayers();
+                closeConfirmModal();
+                showToast("Oración eliminada correctamente", "trash-2");
+            };
+        }
+        function closeConfirmModal() { closeModalWithAnim('confirm-modal'); }
 
         function markPrayedToday(id) {
             const p = appState.prayers.find(x => x.id === id);
@@ -2009,6 +2095,19 @@
             if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
         }
 
+
+        // Cerrar modales al hacer clic fuera (en el overlay)
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    if (overlay.id === 'calendar-overlay') closeCalendarPicker();
+                    if (overlay.id === 'bible-modal') closeBibleModal();
+                    if (overlay.id === 'camera-modal') closeCameraUI();
+                    if (overlay.id === 'prayer-modal') closePrayerModal();
+                    if (overlay.id === 'confirm-modal') closeConfirmModal();
+                }
+            });
+        });
 
         init();
 
