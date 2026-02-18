@@ -64,10 +64,9 @@
             color: var(--text-main);
             font-family: 'Poppins', sans-serif;
             transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
         h1,
@@ -163,10 +162,7 @@
 
         /* Main Scroll Area */
         main {
-            flex: 1;
-            overflow-y: auto;
             padding: 10px 24px 120px;
-            -webkit-overflow-scrolling: touch;
         }
 
         .view {
