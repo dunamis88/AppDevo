@@ -1,0 +1,23 @@
+{
+  "name": "Mi Devocional Diario",
+  "short_name": "Devocional",
+  "description": "Tu compañero diario para el devocional, lectura bíblica y oración.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#2D294D",
+  "theme_color": "#6E56CF",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

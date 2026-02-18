@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Mi Devocional</title>
+    <!-- SEO & PWA Meta -->
+    <meta name="description" content="Tu compañero diario para el devocional, lectura bíblica y oración. 100% offline.">
+    <meta name="theme-color" content="#6E56CF">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Poppins:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            /* Light Theme */
+            --bg-body: #F8F9FD;
+            --bg-card: #FFFFFF;
+            --text-main: #2D3250;
+            --text-muted: #707793;
+            --primary: #6E56CF;
+            --secondary: #45AEE9;
+            --accent: #FF9F43;
+            --pink: #F04C7D;
+            --success: #48BB78;
+            --border: #E8EDF5;
+            --shadow: 0 10px 25px rgba(110, 86, 207, 0.05);
+            --nav-bg: rgba(255, 255, 255, 0.9);
+            --radius-lg: 28px;
+            --radius-md: 18px;
+            --calendar-past: #BDC3C7;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme */
+            --bg-body: #2D294D;
+            --bg-card: #3A355F;
+            --text-main: #FFFFFF;
+            --text-muted: #A09DB1;
+            --border: #4A4475;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            --nav-bg: rgba(45, 41, 77, 0.95);
+            --calendar-past: #4A4475;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .glass {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Onboarding */
+        #onboarding-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-body);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border);
+        }
+
+        /* Header */
+        header {
+            padding: 20px 24px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .avatar-small {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(110, 86, 207, 0.3);
+        }
+
+        .avatar-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-small i {
+            color: white;
+            stroke-width: 2.5;
+        }
+
+        .theme-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+        }
+
+        /* Main Scroll Area */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 24px 120px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .view {
+            display: none;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Date Container - Clickable */
+        .date-navigator {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            padding: 12px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .nav-arrow {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--bg-body);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .nav-arrow:active {
+            transform: scale(0.9);
+            background: var(--border);
+        }
+
+        .nav-arrow:disabled {
+            opacity: 0.1;
+            cursor: default;
+        }
+
+        #date-display-trigger {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            text-transform: capitalize;
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+
+        #date-display-trigger:active {
+            background: var(--bg-body);
+        }
+
+        /* Forms */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: 16px;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(110, 86, 207, 0.1);
+        }
+
+        .date-picker-placeholder {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bible-selector-card {
+            background: var(--bg-card);
+            padding: 14px 20px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .bible-selector-card:active {
+            transform: scale(0.98);
+            background: var(--bg-body);
+        }
+
+        .bible-selector-card.disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        .bible-selector-card i {
+            color: var(--primary);
+            width: 18px;
+        }
+
+        .oia-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .oia-card.accent-card {
+            border-left: 6px solid var(--accent);
+        }
+
+        .oia-card i {
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .oia-card h3 {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        /* Floating Save */
+        #save-fab {
+            position: fixed;
+            bottom: 100px;
+            right: 24px;
+            width: 64px;
+            height: 64px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 8px 25px rgba(110, 86, 207, 0.4);
+            border: none;
+            z-index: 1500;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .fab-unsaved {
+            background: var(--secondary);
+            transform: scale(1.1);
+        }
+
+        .fab-saved {
+            background: var(--success);
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
+        }
+
+        .fab-disabled {
+            background: var(--text-muted) !important;
+            opacity: 0.5;
+            cursor: default;
+            transform: scale(0.9) !important;
+            box-shadow: none !important;
+        }
+
+        /* Progress Bar */
+        .stat-card {
+            background: var(--bg-card);
+            padding: 24px;
+            border-radius: 30px;
+            text-align: center;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .progress-track {
+            height: 14px;
+            background: var(--bg-body);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+            border: 1px solid var(--border);
+        }
+
+        .progress-thumb {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: 1s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 10px;
+        }
+
+        /* Bible List */
+        .book-item {
+            background: var(--bg-card);
+            padding: 16px 20px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+
+        .book-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .book-item.completed {
+            border-left: 5px solid var(--success);
+        }
+
+        .book-item.started {
+            border-left: 5px solid var(--secondary);
+        }
+
+        .chapter-pill-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+            gap: 10px;
+            padding-top: 16px;
+            display: none;
+        }
+
+        .chapter-pill {
+            height: 44px;
+            border-radius: 14px;
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .chapter-pill.read {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .complete-book-row {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-body);
+            padding: 12px 16px;
+            border-radius: 14px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .complete-book-row input {
+            width: 20px;
+            height: 20px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        /* Prayers */
+        .prayer-tile {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .prayer-tile h3 {
+            font-size: 16px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prayer-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .prayer-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-outline {
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 16px;
+            border-radius: 18px;
+            font-size: 16px;
+        }
+
+        .btn-prayed {
+            background: var(--success) !important;
+            color: white !important;
+            border-color: var(--success) !important;
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.2);
+        }
+
+        .view-locked textarea {
+            pointer-events: none;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .view-locked .bible-selector-card {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .fab-locked {
+            background: var(--bg-card) !important;
+            color: var(--primary) !important;
+            border: 1px solid var(--border) !important;
+            box-shadow: var(--shadow) !important;
+        }
+
+        /* Bottom Navbar - Anchored */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: calc(76px + env(safe-area-inset-bottom));
+            background: var(--nav-bg);
+            padding-bottom: env(safe-area-inset-bottom);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.1);
+            border-top: 1px solid var(--border);
+            z-index: 1800;
+        }
+
+        .nav-item {
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            transition: 0.3s;
+            padding: 8px;
+            border-radius: 16px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        /* CALENDAR COMPONENT - Matching Image */
+        .calendar-card {
+            background: var(--bg-card);
+            border-radius: 32px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .calendar-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: capitalize;
+        }
+
+        .calendar-nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-weekdays span {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            opacity: 0.8;
+        }
+
+        .calendar-days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px 0;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+        }
+
+        .calendar-day.prev-month,
+        .calendar-day.next-month {
+            opacity: 0.2;
+        }
+
+        /* The Bubbles from image */
+        .calendar-day.selected::before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            z-index: -1;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .calendar-day.selected {
+            color: white;
+            font-weight: 700;
+        }
+
+        /* Various colored bubbles for gamification/status */
+        .calendar-day.has-content {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .calendar-day.has-content::before {
+            content: '';
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        .calendar-day.has-content::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        .calendar-day.today {
+            color: var(--primary);
+            font-weight: 800;
+            text-decoration: underline;
+        }
+
+        /* Verses Grid */
+        .verse-pill-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .verse-pill {
+            height: 44px;
+            border-radius: 12px;
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .verse-pill.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .verse-pill.in-range {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            opacity: 0.7;
+        }
+
+        .calendar-day.disabled {
+            cursor: default;
+            opacity: 0.05;
+        }
+
+        /* Dropdown Selectors for Birthdate */
+        .birth-selectors-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.2fr;
+            gap: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .birth-selectors-grid select {
+            padding: 14px 10px;
+            font-size: 14px;
+            border-radius: 12px;
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-family: inherit;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 2500;
+            padding: 0;
+        }
+
+        .modal-sheet {
+            background: var(--bg-body);
+            width: 100%;
+            max-width: 500px;
+            padding: 24px 24px 40px;
+            border-radius: 32px 32px 0 0;
+            animation: slideSheet 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideSheet {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        /* Profile Photo */
+        .photo-picker {
+            width: 90px;
+            height: 90px;
+            background: var(--bg-card);
+            border: 2px dashed var(--border);
+            border-radius: 28px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .photo-picker img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ONBOARDING -->
+    <div id="onboarding-overlay" style="display:none;">
+        <div class="card">
+            <div class="avatar-small" style="width: 70px; height: 70px; margin: 0 auto 20px;">
+                <i data-lucide="cross"></i>
+            </div>
+            <h2 style="text-align: center; margin-bottom: 8px;">¡Hola!</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 24px; font-size: 14px;">Comencemos
+                este viaje devocional juntos.</p>
+
+            <div class="input-group">
+                <label>Nombre y Apellido</label>
+                <input type="text" id="reg-name" placeholder="Tu nombre">
+            </div>
+            <div class="input-group">
+                <label>Fecha de Nacimiento</label>
+                <div class="date-picker-placeholder" onclick="openCalendarPicker('birth')">
+                    <span id="reg-birth-display">Seleccionar fecha</span>
+                    <i data-lucide="calendar" style="width:18px;"></i>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="finishOnboarding()">
+                Comenzar <i data-lucide="arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="profile-trigger" onclick="switchTab('profile')">
+            <div class="avatar-small" id="header-avatar">
+                <i data-lucide="user"></i>
+            </div>
+            <div>
+                <h3 id="user-greeting" style="font-size: 15px;">Hola</h3>
+                <span id="header-date" style="font-size: 11px; color: var(--text-muted);">Cargando...</span>
+            </div>
+        </div>
+        <button class="theme-btn" id="theme-toggle">
+            <i data-lucide="moon" id="theme-icon"></i>
+        </button>
+    </header>
+
+    <main>
+        <!-- VISTA: DEVOCIONAL -->
+        <div id="view-devotional" class="view active">
+            <div class="date-navigator">
+                <button class="nav-arrow" onclick="changeDate(-1)"><i data-lucide="chevron-left"></i></button>
+                <span id="date-display-trigger" onclick="openCalendarPicker('devotional')">Hoy</span>
+                <button class="nav-arrow" id="next-date-btn" onclick="changeDate(1)"><i
+                        data-lucide="chevron-right"></i></button>
+            </div>
+
+            <!-- Selector de Biblia Rediseñado -->
+            <div id="bible-selector-container" style="margin-bottom: 24px;">
+                <label>Pasaje Bíblico</label>
+                <div class="bible-selector-card" onclick="openBibleModal('book')">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <i data-lucide="book"></i>
+                        <span id="card-book-text">Seleccionar Libro</span>
+                    </div>
+                    <i data-lucide="chevron-right" style="width:14px; opacity:0.5;"></i>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="bible-selector-card disabled" id="card-chapter" onclick="openBibleModal('chapter')">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <i data-lucide="layout-grid"></i>
+                            <span id="card-chapter-text">Capítulo</span>
+                        </div>
+                        <i data-lucide="chevron-right" style="width:14px; opacity:0.5;"></i>
+                    </div>
+                    <div class="bible-selector-card disabled" id="card-verse" onclick="openBibleModal('verse')">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <i data-lucide="hash"></i>
+                            <span id="card-verse-text">Versículos</span>
+                        </div>
+                        <i data-lucide="chevron-right" style="width:14px; opacity:0.5;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="oia-card">
+                <h3><i data-lucide="eye" style="width:16px;"></i> OBSERVACIÓN</h3>
+                <textarea id="dev-o" rows="3" placeholder="¿Qué dice el texto?" oninput="markUnsaved()"></textarea>
+            </div>
+            <div class="oia-card">
+                <h3><i data-lucide="search" style="width:16px;"></i> INTERPRETACIÓN</h3>
+                <textarea id="dev-i" rows="3" placeholder="¿Qué significa?" oninput="markUnsaved()"></textarea>
+            </div>
+            <div class="oia-card">
+                <h3><i data-lucide="heart" style="width:16px;"></i> APLICACIÓN</h3>
+                <textarea id="dev-a" rows="3" placeholder="¿Cómo lo aplico a mi vida?"
+                    oninput="markUnsaved()"></textarea>
+            </div>
+            <div class="oia-card accent-card">
+                <h3><i data-lucide="message-circle" style="width:16px; color: var(--accent);"></i> MI ORACIÓN</h3>
+                <textarea id="dev-p" rows="3" placeholder="Escribe tu oración de hoy..."
+                    oninput="markUnsaved()"></textarea>
+            </div>
+
+            <button id="save-fab" class="fab-saved" onclick="saveDevotional()">
+                <i data-lucide="check" id="save-fab-icon"></i>
+            </button>
+        </div>
+
+        <!-- VISTA: BIBLIA -->
+        <div id="view-bible" class="view">
+            <div class="stat-card">
+                <h2 style="font-size: 32px;"><span id="total-pct">0</span>%</h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Biblia Completa</p>
+                <div class="progress-track">
+                    <div class="progress-thumb" id="total-progress-bar"></div>
+                </div>
+            </div>
+            <h3 style="margin-bottom: 16px; font-size: 18px;">Antiguo Testamento</h3>
+            <div id="ot-container"></div>
+            <h3 style="margin: 24px 0 16px; font-size: 18px;">Nuevo Testamento</h3>
+            <div id="nt-container"></div>
+        </div>
+
+        <!-- VISTA: ORACIONES -->
+        <div id="view-prayers" class="view">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2>Mis Oraciones</h2>
+                <button class="btn btn-primary" onclick="openPrayerModal()"><i data-lucide="plus"></i> Nueva</button>
+            </div>
+            <div id="prayers-active"></div>
+            <h2 style="margin: 32px 0 16px; color: var(--text-muted); font-size: 18px;">Respondidas</h2>
+            <div id="prayers-answered"></div>
+        </div>
+
+        <!-- VISTA: PERFIL -->
+        <div id="view-profile" class="view">
+            <h2>Mi Cuenta</h2>
+            <br>
+            <div class="card" style="max-width: none;">
+                <div class="photo-picker" onclick="document.getElementById('profile-file').click()">
+                    <div id="photo-preview"><i data-lucide="camera" style="width: 32px; height: 32px;"></i></div>
+                    <input type="file" id="profile-file" hidden accept="image/*" onchange="previewPhoto(this)">
+                </div>
+                <div class="input-group">
+                    <label>Nombre</label>
+                    <input type="text" id="profile-name">
+                </div>
+                <div class="input-group">
+                    <label>Fecha de Nacimiento</label>
+                    <div class="date-picker-placeholder" onclick="openCalendarPicker('birthProfile')">
+                        <span id="profile-birth-display">Seleccionar</span>
+                        <i data-lucide="calendar" style="width:18px;"></i>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="updateProfile()">Guardar Cambios</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav glass">
+        <button class="nav-item active" onclick="switchTab('devotional')" id="nav-devotional"><i
+                data-lucide="book-open"></i><span>Devocional</span></button>
+        <button class="nav-item" onclick="switchTab('bible')" id="nav-bible"><i
+                data-lucide="scroll"></i><span>Biblia</span></button>
+        <button class="nav-item" onclick="switchTab('prayers')" id="nav-prayers"><i
+                data-lucide="sparkles"></i><span>Oraciones</span></button>
+    </nav>
+
+    <!-- CALENDAR/SELECTOR MODAL -->
+    <div class="modal-overlay" id="calendar-overlay">
+        <div class="calendar-card" id="calendar-card">
+            <h3 id="selector-modal-title" style="margin-bottom: 20px; text-align: center; font-size: 18px;">Seleccionar
+                Fecha</h3>
+
+            <!-- Modo Calendario (Devocional) -->
+            <div id="calendar-ui-group">
+                <div class="calendar-header">
+                    <button class="calendar-nav-btn" onclick="navCalendar(-1)"><i
+                            data-lucide="chevron-left"></i></button>
+                    <div class="calendar-title" id="calendar-month-year" onclick="toggleYearMode()"
+                        style="cursor:pointer; display:flex; align-items:center; gap:5px;">
+                        <span id="calendar-title-text">Junio 2024</span>
+                        <i data-lucide="chevron-down" style="width:14px;"></i>
+                    </div>
+                    <button class="calendar-nav-btn" onclick="navCalendar(1)"><i
+                            data-lucide="chevron-right"></i></button>
+                </div>
+                <div class="calendar-weekdays">
+                    <span>D</span><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span>
+                </div>
+                <div class="calendar-days-grid" id="calendar-days"></div>
+            </div>
+
+            <!-- Modo Listas Desplegables (Nacimiento) -->
+            <div id="birth-ui-group" style="display: none;">
+                <div class="birth-selectors-grid">
+                    <select id="sel-day"></select>
+                    <select id="sel-month">
+                        <option value="0">Enero</option>
+                        <option value="1">Febrero</option>
+                        <option value="2">Marzo</option>
+                        <option value="3">Abril</option>
+                        <option value="4">Mayo</option>
+                        <option value="5">Junio</option>
+                        <option value="6">Julio</option>
+                        <option value="7">Agosto</option>
+                        <option value="8">Septiembre</option>
+                        <option value="9">Octubre</option>
+                        <option value="10">Noviembre</option>
+                        <option value="11">Diciembre</option>
+                    </select>
+                    <select id="sel-year"></select>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="confirmBirthDate()">Confirmar Fecha</button>
+            </div>
+
+            <button class="btn btn-full btn-outline" style="margin-top: 20px;"
+                onclick="closeCalendarPicker()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- BIBLE SELECTOR MODAL -->
+    <div class="modal-overlay" id="bible-modal">
+        <div class="modal-sheet" style="max-height: 80vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 id="bible-modal-title" style="font-size: 20px;">Seleccionar</h3>
+                <button style="background:none; border:none; color:var(--text-muted);" onclick="closeBibleModal()"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <div id="bible-modal-content"></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="prayer-modal">
+        <div class="modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="font-size: 20px;">Nueva Oración</h3>
+                <button style="background:none; border:none; color:var(--text-muted);" onclick="closePrayerModal()"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <div class="input-group">
+                <label>Asunto / Petición</label>
+                <input type="text" id="p-title" placeholder="Ej: Por mi familia">
+            </div>
+            <div class="input-group">
+                <label>Detalles</label>
+                <textarea id="p-details" rows="3" placeholder="Relátale a Dios tu corazón..."></textarea>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="addPrayer()">Guardar Petición</button>
+        </div>
+    </div>
+
+    <script>
+        // --- BIBLE DATA ---
+        const BOOKS = [{ id: 1, n: "Génesis", c: 50, nt: false }, { id: 2, n: "Éxodo", c: 40, nt: false }, { id: 3, n: "Levítico", c: 27, nt: false }, { id: 4, n: "Números", c: 36, nt: false }, { id: 5, n: "Deuteronomio", c: 34, nt: false }, { id: 6, n: "Josué", c: 24, nt: false }, { id: 7, n: "Jueces", c: 21, nt: false }, { id: 8, n: "Rut", c: 4, nt: false }, { id: 9, n: "1 Samuel", c: 31, nt: false }, { id: 10, n: "2 Samuel", c: 24, nt: false }, { id: 11, n: "1 Reyes", c: 22, nt: false }, { id: 12, n: "2 Reyes", c: 25, nt: false }, { id: 13, n: "1 Crónicas", c: 29, nt: false }, { id: 14, n: "2 Crónicas", c: 36, nt: false }, { id: 15, n: "Esdras", c: 10, nt: false }, { id: 16, n: "Nehemías", c: 13, nt: false }, { id: 17, n: "Ester", c: 10, nt: false }, { id: 18, n: "Job", c: 42, nt: false }, { id: 19, n: "Salmos", c: 150, nt: false }, { id: 20, n: "Proverbios", c: 31, nt: false }, { id: 21, n: "Eclesiastés", c: 12, nt: false }, { id: 22, n: "Cantares", c: 8, nt: false }, { id: 23, n: "Isaías", c: 66, nt: false }, { id: 24, n: "Jeremías", c: 52, nt: false }, { id: 25, n: "Lamentaciones", c: 5, nt: false }, { id: 26, n: "Ezequiel", c: 48, nt: false }, { id: 27, n: "Daniel", c: 12, nt: false }, { id: 28, n: "Oseas", c: 14, nt: false }, { id: 29, n: "Joel", c: 3, nt: false }, { id: 30, n: "Amós", c: 9, nt: false }, { id: 31, n: "Abdías", c: 1, nt: false }, { id: 32, n: "Jonás", c: 4, nt: false }, { id: 33, n: "Miqueas", c: 7, nt: false }, { id: 34, n: "Nahúm", c: 3, nt: false }, { id: 35, n: "Habacuc", c: 3, nt: false }, { id: 36, n: "Sofonías", c: 3, nt: false }, { id: 37, n: "Hageo", c: 2, nt: false }, { id: 38, n: "Zacarías", c: 14, nt: false }, { id: 39, n: "Malaquías", c: 4, nt: false }, { id: 40, n: "Mateo", c: 28, nt: true }, { id: 41, n: "Marcos", c: 16, nt: true }, { id: 42, n: "Lucas", c: 24, nt: true }, { id: 43, n: "Juan", c: 21, nt: true }, { id: 44, n: "Hechos", c: 28, nt: true }, { id: 45, n: "Romanos", c: 16, nt: true }, { id: 46, n: "1 Corintios", c: 16, nt: true }, { id: 47, n: "2 Corintios", c: 13, nt: true }, { id: 48, n: "Gálatas", c: 6, nt: true }, { id: 49, n: "Efesios", c: 6, nt: true }, { id: 50, n: "Filipenses", c: 4, nt: true }, { id: 51, n: "Colosenses", c: 4, nt: true }, { id: 52, n: "1 Tesalonicenses", c: 5, nt: true }, { id: 53, n: "2 Tesalonicenses", c: 3, nt: true }, { id: 54, n: "1 Timoteo", c: 6, nt: true }, { id: 55, n: "2 Timoteo", c: 4, nt: true }, { id: 56, n: "Tito", c: 3, nt: true }, { id: 57, n: "Filemón", c: 1, nt: true }, { id: 58, n: "Hebreos", c: 13, nt: true }, { id: 59, n: "Santiago", c: 5, nt: true }, { id: 60, n: "1 Pedro", c: 5, nt: true }, { id: 61, n: "2 Pedro", c: 3, nt: true }, { id: 62, n: "1 Juan", c: 5, nt: true }, { id: 63, n: "2 Juan", c: 1, nt: true }, { id: 64, n: "3 Juan", c: 1, nt: true }, { id: 65, n: "Judas", c: 1, nt: true }, { id: 66, n: "Apocalipsis", c: 22, nt: true }];
+
+        // --- GLOBAL STATE ---
+        let appState = {
+            user: null,
+            theme: 'light',
+            viewDate: new Date().toISOString().split('T')[0],
+            devotionals: {},
+            reading: {},
+            prayers: [],
+            calendar: { currentMonth: new Date().getMonth(), currentYear: new Date().getFullYear(), target: 'devotional', selectedDate: '', mode: 'days' }
+        };
+
+        const STORAGE_KEY = 'devocional_pro_v6';
+
+        // --- INITIALIZATION ---
+        function init() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (data) appState = JSON.parse(data);
+
+            if (!appState.user) {
+                document.getElementById('onboarding-overlay').style.display = 'flex';
+            } else {
+                renderProfile();
+            }
+
+            setTheme(appState.theme);
+            updateDateUI();
+            renderBible();
+            renderPrayers();
+            lucide.createIcons();
+        }
+
+        function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); }
+
+        // --- THEME ---
+        function setTheme(theme) {
+            appState.theme = theme; document.body.setAttribute('data-theme', theme);
+            const icon = document.getElementById('theme-icon');
+            icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
+            lucide.createIcons(); save();
+        }
+        document.getElementById('theme-toggle').onclick = () => setTheme(appState.theme === 'light' ? 'dark' : 'light');
+
+        // --- CALENDAR / SELECTOR PICKER LOGIC ---
+        function openCalendarPicker(target) {
+            appState.calendar.target = target;
+            document.getElementById('calendar-overlay').style.display = 'flex';
+
+            if (target === 'birth' || target === 'birthProfile') {
+                document.getElementById('calendar-ui-group').style.display = 'none';
+                document.getElementById('birth-ui-group').style.display = 'block';
+                document.querySelector('.birth-selectors-grid').style.display = 'grid';
+                document.getElementById('selector-modal-title').textContent = 'Fecha de Nacimiento';
+                populateBirthSelectors();
+            } else {
+                document.getElementById('calendar-ui-group').style.display = 'block';
+                document.getElementById('birth-ui-group').style.display = 'none';
+                document.querySelector('.birth-selectors-grid').style.display = 'none';
+                document.getElementById('selector-modal-title').textContent = 'Seleccionar Día';
+
+                let initialDate = new Date(appState.viewDate + "T12:00:00");
+                appState.calendar.currentMonth = initialDate.getMonth();
+                appState.calendar.currentYear = initialDate.getFullYear();
+                appState.calendar.mode = 'days';
+                renderCalendar();
+            }
+        }
+
+        function populateBirthSelectors() {
+            const selDay = document.getElementById('sel-day');
+            const selYear = document.getElementById('sel-year');
+            const selMonth = document.getElementById('sel-month');
+
+            selDay.innerHTML = '';
+            for (let i = 1; i <= 31; i++) {
+                const o = document.createElement('option'); o.value = i; o.textContent = i;
+                selDay.appendChild(o);
+            }
+
+            selYear.innerHTML = '';
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear; i >= currentYear - 100; i--) {
+                const o = document.createElement('option'); o.value = i; o.textContent = i;
+                selYear.appendChild(o);
+            }
+
+            // Set current known date if exists
+            if (appState.user && appState.user.birth) {
+                const d = new Date(appState.user.birth + "T12:00:00");
+                selDay.value = d.getDate();
+                selMonth.value = d.getMonth();
+                selYear.value = d.getFullYear();
+            }
+        }
+
+        function confirmBirthDate() {
+            const d = document.getElementById('sel-day').value;
+            const m = parseInt(document.getElementById('sel-month').value) + 1;
+            const y = document.getElementById('sel-year').value;
+            const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+            selectCalendarDate(dateStr);
+        }
+
+        function closeCalendarPicker() { document.getElementById('calendar-overlay').style.display = 'none'; }
+
+        function navCalendar(offset) {
+            if (appState.calendar.mode === 'years') {
+                appState.calendar.currentYear += offset * 12;
+            } else {
+                appState.calendar.currentMonth += offset;
+                if (appState.calendar.currentMonth < 0) { appState.calendar.currentMonth = 11; appState.calendar.currentYear--; }
+                if (appState.calendar.currentMonth > 11) { appState.calendar.currentMonth = 0; appState.calendar.currentYear++; }
+            }
+            renderCalendar();
+        }
+
+        function toggleYearMode() {
+            appState.calendar.mode = appState.calendar.mode === 'years' ? 'days' : 'years';
+            renderCalendar();
+        }
+
+        function selectYear(y) {
+            appState.calendar.currentYear = y;
+            appState.calendar.mode = 'days';
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-days');
+            const titleText = document.getElementById('calendar-title-text');
+            const weekDays = document.querySelector('.calendar-weekdays');
+            grid.innerHTML = '';
+
+            if (appState.calendar.mode === 'years') {
+                weekDays.style.display = 'none';
+                const startYear = appState.calendar.currentYear - 6;
+                titleText.textContent = `${startYear} - ${startYear + 11}`;
+                grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+
+                for (let i = 0; i < 12; i++) {
+                    const y = startYear + i;
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'calendar-day';
+                    dayDiv.style.height = '60px';
+                    dayDiv.textContent = y;
+                    if (y === appState.calendar.currentYear) dayDiv.classList.add('selected');
+                    dayDiv.onclick = () => selectYear(y);
+                    grid.appendChild(dayDiv);
+                }
+            } else {
+                weekDays.style.display = 'grid';
+                grid.style.gridTemplateColumns = 'repeat(7, 1fr)';
+                const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+                titleText.textContent = `${monthNames[appState.calendar.currentMonth]} ${appState.calendar.currentYear}`;
+
+                const firstDay = new Date(appState.calendar.currentYear, appState.calendar.currentMonth, 1).getDay();
+                const daysInMonth = new Date(appState.calendar.currentYear, appState.calendar.currentMonth + 1, 0).getDate();
+                const prevDaysInMonth = new Date(appState.calendar.currentYear, appState.calendar.currentMonth, 0).getDate();
+                const todayStr = new Date().toISOString().split('T')[0];
+
+                for (let i = firstDay; i > 0; i--) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'calendar-day prev-month';
+                    dayDiv.textContent = prevDaysInMonth - i + 1;
+                    grid.appendChild(dayDiv);
+                }
+
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const dayDiv = document.createElement('div');
+                    const dateFull = `${appState.calendar.currentYear}-${String(appState.calendar.currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                    dayDiv.className = 'calendar-day';
+                    dayDiv.textContent = i;
+                    if (dateFull === todayStr) dayDiv.classList.add('today');
+                    if (appState.calendar.target === 'devotional' && dateFull > todayStr) {
+                        dayDiv.classList.add('disabled');
+                    } else {
+                        dayDiv.onclick = () => selectCalendarDate(dateFull);
+                    }
+                    if (appState.calendar.target === 'devotional') {
+                        if (appState.viewDate === dateFull) dayDiv.classList.add('selected');
+                        if (appState.devotionals[dateFull]) {
+                            const dev = appState.devotionals[dateFull];
+                            if (dev.o || dev.i || dev.a || dev.p) dayDiv.classList.add('has-content');
+                        }
+                    } else {
+                        if (appState.user && appState.user.birth === dateFull) dayDiv.classList.add('selected');
+                    }
+                    grid.appendChild(dayDiv);
+                }
+            }
+            lucide.createIcons();
+        }
+
+        function selectCalendarDate(date) {
+            if (appState.calendar.target === 'devotional') {
+                appState.viewDate = date;
+                updateDateUI();
+            } else if (appState.calendar.target === 'birth') {
+                appState.user = appState.user || {};
+                appState.user.birth = date;
+                document.getElementById('reg-birth-display').textContent = date;
+            } else if (appState.calendar.target === 'birthProfile') {
+                appState.user.birth = date;
+                document.getElementById('profile-birth-display').textContent = date;
+            }
+            closeCalendarPicker();
+        }
+
+        // --- ONBOARDING & PROFILE ---
+        function finishOnboarding() {
+            const name = document.getElementById('reg-name').value;
+            if (!name) return alert('Dime tu nombre 😊');
+            if (!appState.user || !appState.user.birth) return alert('Dime tu fecha de nacimiento 🎂');
+            appState.user.name = name;
+            save(); document.getElementById('onboarding-overlay').style.display = 'none'; renderProfile();
+        }
+
+        function renderProfile() {
+            document.getElementById('user-greeting').textContent = `Hola, ${appState.user.name}`;
+            document.getElementById('profile-name').value = appState.user.name;
+            document.getElementById('profile-birth-display').textContent = appState.user.birth || 'Seleccionar';
+
+            const avatar = document.getElementById('header-avatar');
+            const preview = document.getElementById('photo-preview');
+            if (appState.user.photo) {
+                const img = `<img src="${appState.user.photo}">`;
+                avatar.innerHTML = img; preview.innerHTML = img;
+            }
+        }
+
+        function previewPhoto(input) {
+            if (input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => { appState.user.photo = e.target.result; renderProfile(); };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function updateProfile() {
+            appState.user.name = document.getElementById('profile-name').value;
+            save(); renderProfile(); alert('Perfil actualizado ✨'); switchTab('devotional');
+        }
+
+        // --- TABS ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${tabId}`).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(`nav-${tabId}`).classList.add('active');
+            if (tabId === 'devotional') updateDateUI();
+            if (tabId === 'bible') renderBible();
+            window.scrollTo(0, 0);
+        }
+
+
+
+        // --- DEVOTIONAL BIBLE SELECTOR LOGIC ---
+        let bibleSelection = { book: '', chapter: 0, vStart: 0, vEnd: 0 };
+        let isEditLocked = false;
+
+        function openBibleModal(type) {
+            if (isEditLocked) return;
+            if (type === 'chapter' && !bibleSelection.book) return;
+            if (type === 'verse' && (!bibleSelection.book || !bibleSelection.chapter)) return;
+
+            const modal = document.getElementById('bible-modal');
+            const content = document.getElementById('bible-modal-content');
+            const title = document.getElementById('bible-modal-title');
+            content.innerHTML = '';
+            modal.style.display = 'flex';
+
+            if (type === 'book') {
+                title.textContent = 'Seleccionar Libro';
+                BOOKS.forEach(b => {
+                    const btn = document.createElement('div');
+                    btn.className = 'book-item';
+                    btn.style.cursor = 'pointer';
+                    btn.innerHTML = `<div class="book-header"><strong>${b.n}</strong><span style="font-size:11px; opacity:0.6;">${b.c} caps</span></div>`;
+                    btn.onclick = () => selectBibleBook(b);
+                    content.appendChild(btn);
+                });
+            } else if (type === 'chapter') {
+                title.textContent = 'Seleccionar Capítulo';
+                const book = BOOKS.find(b => b.n === bibleSelection.book);
+                const grid = document.createElement('div');
+                grid.className = 'chapter-pill-grid';
+                grid.style.display = 'grid';
+                for (let i = 1; i <= book.c; i++) {
+                    const pill = document.createElement('div');
+                    pill.className = 'chapter-pill';
+                    pill.textContent = i;
+                    if (i === bibleSelection.chapter) pill.classList.add('read');
+                    pill.onclick = () => selectBibleChapter(i);
+                    grid.appendChild(pill);
+                }
+                content.appendChild(grid);
+            } else if (type === 'verse') {
+                title.textContent = 'Seleccionar Versículos';
+                const grid = document.createElement('div');
+                grid.className = 'verse-pill-grid';
+                // Most chapters don't exceed 100 verses, showing a safe range.
+                for (let i = 1; i <= 100; i++) {
+                    const pill = document.createElement('div');
+                    pill.className = 'verse-pill';
+                    pill.textContent = i;
+                    updateVersePillClass(pill, i);
+                    pill.onclick = () => selectBibleVerse(i, pill);
+                    grid.appendChild(pill);
+                }
+                content.appendChild(grid);
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = 'btn btn-primary btn-full';
+                confirmBtn.style.marginTop = '20px';
+                confirmBtn.textContent = 'Confirmar Versículos';
+                confirmBtn.onclick = () => { closeBibleModal(); markUnsaved(); updateBibleCards(); };
+                content.appendChild(confirmBtn);
+            }
+            lucide.createIcons();
+        }
+
+        function closeBibleModal() { document.getElementById('bible-modal').style.display = 'none'; }
+
+        function selectBibleBook(book) {
+            bibleSelection.book = book.n;
+            bibleSelection.chapter = 0;
+            bibleSelection.vStart = 0;
+            bibleSelection.vEnd = 0;
+            updateBibleCards();
+            closeBibleModal();
+            openBibleModal('chapter');
+        }
+
+        function selectBibleChapter(ch) {
+            bibleSelection.chapter = ch;
+            bibleSelection.vStart = 0;
+            bibleSelection.vEnd = 0;
+            updateBibleCards();
+            closeBibleModal();
+            openBibleModal('verse');
+        }
+
+        function selectBibleVerse(v, el) {
+            if (bibleSelection.vStart === 0 || (bibleSelection.vStart !== 0 && bibleSelection.vEnd !== 0)) {
+                bibleSelection.vStart = v;
+                bibleSelection.vEnd = 0;
+            } else {
+                if (v < bibleSelection.vStart) {
+                    bibleSelection.vEnd = bibleSelection.vStart;
+                    bibleSelection.vStart = v;
+                } else {
+                    bibleSelection.vEnd = v;
+                }
+            }
+            // Refresh pills highlight
+            document.querySelectorAll('.verse-pill').forEach((p, idx) => {
+                const vn = idx + 1;
+                p.className = 'verse-pill';
+                updateVersePillClass(p, vn);
+            });
+        }
+
+        function updateVersePillClass(p, v) {
+            if (v === bibleSelection.vStart || v === bibleSelection.vEnd) p.classList.add('selected');
+            else if (bibleSelection.vEnd !== 0 && v > bibleSelection.vStart && v < bibleSelection.vEnd) p.classList.add('in-range');
+        }
+
+        function updateBibleCards() {
+            document.getElementById('card-book-text').textContent = bibleSelection.book || 'Seleccionar Libro';
+
+            const capCard = document.getElementById('card-chapter');
+            const capText = document.getElementById('card-chapter-text');
+            if (bibleSelection.book) {
+                capCard.classList.remove('disabled');
+                capText.textContent = bibleSelection.chapter ? `Capítulo ${bibleSelection.chapter}` : 'Capítulo';
+            } else {
+                capCard.classList.add('disabled');
+                capText.textContent = 'Capítulo';
+            }
+
+            const vsCard = document.getElementById('card-verse');
+            const vsText = document.getElementById('card-verse-text');
+            if (bibleSelection.chapter > 0) {
+                vsCard.classList.remove('disabled');
+                if (bibleSelection.vStart > 0) {
+                    vsText.textContent = bibleSelection.vEnd > 0 ? `Vrs ${bibleSelection.vStart}-${bibleSelection.vEnd}` : `Versículo ${bibleSelection.vStart}`;
+                } else {
+                    vsText.textContent = 'Versículos';
+                }
+            } else {
+                vsCard.classList.add('disabled');
+                vsText.textContent = 'Versículos';
+            }
+        }
+
+        function changeDate(offset) {
+            const d = new Date(appState.viewDate + "T12:00:00");
+            d.setDate(d.getDate() + offset);
+            const str = d.toISOString().split('T')[0];
+            const today = new Date().toISOString().split('T')[0];
+            if (str > today) return;
+            appState.viewDate = str; updateDateUI();
+        }
+
+        function updateDateUI() {
+            const d = new Date(appState.viewDate + "T12:00:00");
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('header-date').textContent = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+            document.getElementById('date-display-trigger').textContent = appState.viewDate === today ? 'Hoy' : d.toLocaleDateString('es-ES', options);
+            document.getElementById('next-date-btn').disabled = appState.viewDate === today;
+
+            const entry = appState.devotionals[appState.viewDate] || { book: '', ch: '', vs: '', o: '', i: '', a: '', p: '' };
+
+            // Sync with new selection system
+            bibleSelection.book = entry.book || '';
+            bibleSelection.chapter = parseInt(entry.ch) || 0;
+            if (entry.vs) {
+                const parts = entry.vs.split('-');
+                bibleSelection.vStart = parseInt(parts[0]) || 0;
+                bibleSelection.vEnd = parts[1] ? parseInt(parts[1]) : 0;
+            } else {
+                bibleSelection.vStart = 0; bibleSelection.vEnd = 0;
+            }
+            updateBibleCards();
+
+            document.getElementById('dev-o').value = entry.o;
+            document.getElementById('dev-i').value = entry.i;
+            document.getElementById('dev-a').value = entry.a;
+            document.getElementById('dev-p').value = entry.p;
+
+            // Lock logic for old entries
+            const hasContent = entry.book || entry.o || entry.i || entry.a || entry.p;
+            const isPast = appState.viewDate < today;
+
+            if (isPast && hasContent) {
+                setEditLock(true);
+            } else {
+                setEditLock(false);
+            }
+
+            if (!isEditLocked) {
+                const fab = document.getElementById('save-fab');
+                fab.className = 'fab-saved';
+                document.getElementById('save-fab-icon').setAttribute('data-lucide', 'check');
+                validateDevotionalForm();
+            }
+            lucide.createIcons();
+        }
+
+        function setEditLock(locked) {
+            isEditLocked = locked;
+            const view = document.getElementById('view-devotional');
+            const fab = document.getElementById('save-fab');
+            const icon = document.getElementById('save-fab-icon');
+
+            if (locked) {
+                view.classList.add('view-locked');
+                fab.className = 'fab-locked';
+                fab.disabled = false;
+                icon.setAttribute('data-lucide', 'lock');
+            } else {
+                view.classList.remove('view-locked');
+                fab.className = 'fab-unsaved';
+                icon.setAttribute('data-lucide', 'save');
+                validateDevotionalForm();
+            }
+            lucide.createIcons();
+        }
+
+        function toggleEdit() {
+            setEditLock(!isEditLocked);
+        }
+
+        function markUnsaved() {
+            const fab = document.getElementById('save-fab');
+            fab.className = 'fab-unsaved';
+            document.getElementById('save-fab-icon').setAttribute('data-lucide', 'save');
+            validateDevotionalForm();
+            lucide.createIcons();
+        }
+
+        function validateDevotionalForm() {
+            const fab = document.getElementById('save-fab');
+            const isBibleComplete = bibleSelection.book && bibleSelection.chapter > 0 && bibleSelection.vStart > 0;
+            const isOIAComplete = document.getElementById('dev-o').value.trim() !== '' &&
+                document.getElementById('dev-i').value.trim() !== '' &&
+                document.getElementById('dev-a').value.trim() !== '' &&
+                document.getElementById('dev-p').value.trim() !== '';
+
+            if (isBibleComplete && isOIAComplete) {
+                fab.classList.remove('fab-disabled');
+                fab.disabled = false;
+            } else {
+                fab.classList.add('fab-disabled');
+                fab.disabled = true;
+            }
+        }
+
+        function saveDevotional() {
+            if (isEditLocked) {
+                toggleEdit();
+                return;
+            }
+
+            const isBibleComplete = bibleSelection.book && bibleSelection.chapter > 0 && bibleSelection.vStart > 0;
+            const isOIAComplete = document.getElementById('dev-o').value.trim() !== '' &&
+                document.getElementById('dev-i').value.trim() !== '' &&
+                document.getElementById('dev-a').value.trim() !== '' &&
+                document.getElementById('dev-p').value.trim() !== '';
+
+            if (!isBibleComplete || !isOIAComplete) {
+                alert("Por favor, completa todos los campos antes de guardar. 🙏");
+                return;
+            }
+
+            const vsStr = bibleSelection.vStart > 0 ? (bibleSelection.vEnd > 0 ? `${bibleSelection.vStart}-${bibleSelection.vEnd}` : `${bibleSelection.vStart}`) : '';
+            appState.devotionals[appState.viewDate] = {
+                book: bibleSelection.book,
+                ch: bibleSelection.chapter,
+                vs: vsStr,
+                o: document.getElementById('dev-o').value,
+                i: document.getElementById('dev-i').value,
+                a: document.getElementById('dev-a').value,
+                p: document.getElementById('dev-p').value
+            };
+            save(); updateDateUI();
+            if (navigator.vibrate) navigator.vibrate(40);
+        }
+
+        // --- BIBLE LOGIC ---
+        function renderBible() {
+            const ot = document.getElementById('ot-container');
+            const nt = document.getElementById('nt-container');
+            ot.innerHTML = ''; nt.innerHTML = '';
+            let totalRead = 0; const totalChapters = 1189;
+            BOOKS.forEach(b => {
+                const read = appState.reading[b.id] || [];
+                totalRead += read.length;
+                const pct = Math.round((read.length / b.c) * 100);
+                const card = document.createElement('div');
+                card.className = `book-item ${pct === 100 ? 'completed' : pct > 0 ? 'started' : ''}`;
+                card.innerHTML = `
+                    <div class="book-header" onclick="toggleChapters(${b.id})">
+                        <div>
+                            <strong style="font-size: 16px;">${b.n}</strong>
+                            <div style="font-size: 11px; color: var(--text-muted);">${read.length} / ${b.c} capítulos</div>
+                        </div>
+                        <span class="tag" style="background: ${pct === 100 ? 'var(--success)' : pct > 0 ? 'var(--secondary)' : 'var(--border)'}">${pct}%</span>
+                    </div>
+                    <div id="ch-grid-${b.id}" class="chapter-pill-grid">
+                        <div class="complete-book-row">
+                            <span>Marcar libro como leído</span>
+                            <input type="checkbox" ${pct === 100 ? 'checked' : ''} onchange="markWholeBook(${b.id}, this.checked)">
+                        </div>
+                        ${Array.from({ length: b.c }, (_, i) => { const cn = i + 1; const isR = read.includes(cn); return `<div class="chapter-pill ${isR ? 'read' : ''}" onclick="toggleCh(${b.id}, ${cn})">${cn}</div>`; }).join('')}
+                    </div>
+                `; (b.nt ? nt : ot).appendChild(card);
+            });
+            const globPct = Math.round((totalRead / totalChapters) * 100);
+            document.getElementById('total-pct').textContent = globPct;
+            document.getElementById('total-progress-bar').style.width = globPct + '%';
+        }
+        function toggleChapters(id) {
+            const el = document.getElementById(`ch-grid-${id}`);
+            const visible = el.style.display === 'grid';
+            document.querySelectorAll('.chapter-pill-grid').forEach(g => g.style.display = 'none');
+            el.style.display = visible ? 'none' : 'grid';
+        }
+        function toggleCh(bid, c) {
+            if (!appState.reading[bid]) appState.reading[bid] = [];
+            const idx = appState.reading[bid].indexOf(c);
+            if (idx > -1) appState.reading[bid].splice(idx, 1);
+            else appState.reading[bid].push(c);
+            save(); renderBible(); document.getElementById(`ch-grid-${bid}`).style.display = 'grid';
+        }
+        function markWholeBook(bid, check) {
+            const b = BOOKS.find(x => x.id === bid);
+            appState.reading[bid] = check ? Array.from({ length: b.c }, (_, i) => i + 1) : [];
+            save(); renderBible(); document.getElementById(`ch-grid-${bid}`).style.display = 'grid';
+        }
+
+        // --- PRAYER LOGIC ---
+        function openPrayerModal() { document.getElementById('prayer-modal').style.display = 'flex'; }
+        function closePrayerModal() { document.getElementById('prayer-modal').style.display = 'none'; }
+        function addPrayer() {
+            const t = document.getElementById('p-title').value; const d = document.getElementById('p-details').value;
+            if (!t) return;
+            appState.prayers.push({ id: Date.now(), title: t, details: d, created: new Date().toISOString(), responded: null, status: 'active' });
+            save(); renderPrayers(); closePrayerModal();
+            document.getElementById('p-title').value = ''; document.getElementById('p-details').value = '';
+        }
+        function renderPrayers() {
+            const active = document.getElementById('prayers-active'); const done = document.getElementById('prayers-answered');
+            active.innerHTML = ''; done.innerHTML = '';
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            appState.prayers.forEach(p => {
+                const card = document.createElement('div'); card.className = 'prayer-tile'; const cDate = new Date(p.created).toLocaleDateString();
+                if (p.status === 'active') {
+                    const prayedToday = p.lastPrayed === todayStr;
+                    card.innerHTML = `
+                        <h3><i data-lucide="circle"></i> ${p.title}</h3>
+                        <div class="prayer-meta">Iniciada el ${cDate}</div>
+                        <p style="font-size: 14px; color: var(--text-muted);">${p.details || ''}</p>
+                        <div class="prayer-btns">
+                            <button class="btn btn-outline ${prayedToday ? 'btn-prayed' : ''}" onclick="markPrayedToday(${p.id})">
+                                ${prayedToday ? '<i data-lucide="check"></i> ¡Amén!' : '🙏 Oré hoy'}
+                            </button>
+                            <button class="btn btn-primary" onclick="markAnswered(${p.id})">Respondida</button>
+                        </div>`;
+                    active.prepend(card);
+                } else {
+                    const days = Math.floor((new Date(p.responded) - new Date(p.created)) / 86400000);
+                    card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><h3><i data-lucide="check-circle" style="color:var(--success)"></i> ${p.title}</h3><div class="prayer-meta">Respondida después de ${days} días</div></div><button onclick="restorePrayer(${p.id})" style="background:none; border:none; color:var(--text-muted);"><i data-lucide="rotate-ccw"></i></button></div>`;
+                    done.prepend(card);
+                }
+            });
+            lucide.createIcons();
+        }
+        function markAnswered(id) { const p = appState.prayers.find(x => x.id === id); p.status = 'answered'; p.responded = new Date().toISOString(); save(); renderPrayers(); }
+        function restorePrayer(id) { const p = appState.prayers.find(x => x.id === id); p.status = 'active'; p.responded = null; save(); renderPrayers(); }
+
+        function markPrayedToday(id) {
+            const p = appState.prayers.find(x => x.id === id);
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (p.lastPrayed === todayStr) return; // Already prayed
+
+            p.lastPrayed = todayStr;
+            save();
+            renderPrayers();
+            if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+        }
+
+
+        init();
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW Registered'))
+                    .catch(err => console.log('SW Failed', err));
+            });
+        }
+    </script>
+</body>
+
+</html>
