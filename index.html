@@ -28,7 +28,7 @@
             --text-muted: #707793;
             --primary: #6E56CF;
             --secondary: #45AEE9;
-            --accent: #FF9F43;
+            --accent: #f8bb2a;
             --pink: #F04C7D;
             --success: #48BB78;
             --border: #E8EDF5;
@@ -264,7 +264,9 @@
             color: var(--text-main);
             font-size: 16px;
             font-family: inherit;
-            transition: 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            resize: none;
+            overflow: hidden;
         }
 
         input:focus,
@@ -370,40 +372,66 @@
         }
 
         /* Floating Save */
-        #save-fab {
-            position: fixed;
-            bottom: 100px;
-            right: 24px;
-            width: 58px;
-            height: 58px;
-            border-radius: 19px;
+        .devotional-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            margin-bottom: 40px;
+        }
+
+        #save-fab,
+        #share-fab {
+            flex: 1;
+            height: 54px;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            box-shadow: 0 8px 25px rgba(110, 86, 207, 0.4);
-            border: none;
-            z-index: 1500;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-weight: 600;
+            gap: 10px;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
+            border: none;
+            box-shadow: var(--shadow);
+        }
+
+        #save-fab {
+            color: white;
+            background: var(--primary);
         }
 
         .fab-unsaved {
-            background: var(--secondary);
-            transform: scale(1.05);
+            background: var(--secondary) !important;
+            transform: scale(1.02);
         }
 
         .fab-saved {
-            background: var(--success);
-            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
+            background: var(--success) !important;
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.2) !important;
         }
 
         .fab-disabled {
             background: var(--text-muted) !important;
             opacity: 0.5;
             cursor: default;
-            transform: scale(0.9) !important;
+            transform: scale(0.95) !important;
             box-shadow: none !important;
+        }
+
+        .fab-locked {
+            background: var(--accent) !important;
+            color: white !important;
+        }
+
+        #share-fab {
+            background: var(--bg-card);
+            color: var(--primary);
+            border: 1px solid var(--border);
+        }
+
+        #share-fab:active,
+        #save-fab:active {
+            transform: scale(0.95);
         }
 
         /* Progress Bar */
@@ -526,12 +554,20 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            word-break: break-word;
         }
 
         .prayer-meta {
             font-size: 12px;
             color: var(--text-muted);
             margin-bottom: 12px;
+        }
+
+        .prayer-tile p {
+            word-break: break-word;
+            white-space: pre-wrap;
+            line-height: 1.5;
+            margin: 0;
         }
 
         .prayer-btns {
@@ -582,6 +618,86 @@
         .view-locked textarea {
             pointer-events: none;
             background: rgba(0, 0, 0, 0.02);
+        }
+
+        /* Notes Section */
+        .note-tile {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .note-tile:active {
+            transform: scale(0.98);
+        }
+
+        .note-tile h3 {
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .note-date {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .note-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin-top: 0;
+            white-space: pre-wrap;
+        }
+
+        .note-tile.expanded .note-body {
+            max-height: 500px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .sort-group {
+            display: flex;
+            background: var(--bg-card);
+            padding: 4px;
+            border-radius: 12px;
+            gap: 4px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .sort-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            background: none;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .sort-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(110, 86, 207, 0.2);
         }
 
         .view-locked .bible-selector-card {
@@ -686,7 +802,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: calc(76px + env(safe-area-inset-bottom));
+            height: calc(64px + env(safe-area-inset-bottom));
             background: var(--nav-bg);
             padding-bottom: env(safe-area-inset-bottom);
             display: flex;
@@ -1102,26 +1218,89 @@
 
             <div class="oia-card o-card">
                 <h3><i data-lucide="eye" style="width:16px;"></i> OBSERVACIÓN</h3>
-                <textarea id="dev-o" rows="3" placeholder="¿Qué dice el texto?" oninput="markUnsaved()"></textarea>
+                <textarea id="dev-o" rows="3" placeholder="¿Qué dice el texto?"
+                    oninput="markUnsaved(); autoResize(this)"></textarea>
             </div>
             <div class="oia-card i-card">
                 <h3><i data-lucide="search" style="width:16px;"></i> INTERPRETACIÓN</h3>
-                <textarea id="dev-i" rows="3" placeholder="¿Qué significa?" oninput="markUnsaved()"></textarea>
+                <textarea id="dev-i" rows="3" placeholder="¿Qué significa?"
+                    oninput="markUnsaved(); autoResize(this)"></textarea>
             </div>
             <div class="oia-card a-card">
                 <h3><i data-lucide="heart" style="width:16px;"></i> APLICACIÓN</h3>
                 <textarea id="dev-a" rows="3" placeholder="¿Cómo lo aplico a mi vida?"
-                    oninput="markUnsaved()"></textarea>
+                    oninput="markUnsaved(); autoResize(this)"></textarea>
             </div>
             <div class="oia-card accent-card">
                 <h3><i data-lucide="message-circle" style="width:16px;"></i> MI ORACIÓN</h3>
                 <textarea id="dev-p" rows="3" placeholder="Escribe tu oración de hoy..."
-                    oninput="markUnsaved()"></textarea>
+                    oninput="markUnsaved(); autoResize(this)"></textarea>
             </div>
 
-            <button id="save-fab" class="fab-saved" onclick="saveDevotional()">
-                <i data-lucide="check" id="save-fab-icon"></i>
-            </button>
+            <div class="devotional-actions">
+                <button id="share-fab" onclick="shareDevotional()">
+                    <i data-lucide="share-2" style="width:20px;"></i> Compartir
+                </button>
+                <button id="save-fab" class="fab-saved" onclick="saveDevotional()">
+                    <i data-lucide="check" id="save-fab-icon" style="width:20px;"></i> <span
+                        id="save-text">Guardado</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- VISTA: NOTAS BÍBLICAS -->
+        <div id="view-notes" class="view">
+            <h2>Notas Bíblicas</h2>
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Guarda reflexiones rápidas sobre
+                versículos específicos.</p>
+
+            <div class="card" style="max-width:none; padding:16px; margin-bottom:32px;">
+                <label style="font-size:12px; opacity:0.7;">Pasaje de la Nota</label>
+                <div id="bible-selector-container-notes" style="margin: 10px 0 20px;">
+                    <div class="bible-selector-card" onclick="openBibleModal('book')"
+                        style="height:48px; font-size:13px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <i data-lucide="book" style="width:14px;"></i>
+                            <span id="card-book-text-notes">Libro</span>
+                        </div>
+                        <i data-lucide="chevron-right" style="width:12px; opacity:0.5;"></i>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top:8px;">
+                        <div class="bible-selector-card disabled" id="card-chapter-notes"
+                            onclick="openBibleModal('chapter')" style="height:44px; font-size:13px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i data-lucide="layout-grid" style="width:14px;"></i>
+                                <span id="card-chapter-text-notes">Cap</span>
+                            </div>
+                        </div>
+                        <div class="bible-selector-card disabled" id="card-verse-notes"
+                            onclick="openBibleModal('verse')" style="height:44px; font-size:13px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i data-lucide="hash" style="width:14px;"></i>
+                                <span id="card-verse-text-notes">Vs</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <textarea id="note-input" placeholder="Escribe tu nota aquí..." oninput="autoResize(this)"
+                    style="background:var(--bg-main); font-size:14px; padding:12px; border-radius:15px;"></textarea>
+                <button class="btn btn-primary btn-full" onclick="addNote()" style="margin-top:16px;">
+                    <i data-lucide="plus"></i> Guardar Nota
+                </button>
+            </div>
+
+            <div class="sort-group">
+                <button id="sort-date" class="sort-btn active" onclick="setNoteSort('date')">
+                    <i data-lucide="calendar"></i> Fecha
+                </button>
+                <button id="sort-bible" class="sort-btn" onclick="setNoteSort('bible')">
+                    <i data-lucide="book"></i> Orden Bíblico
+                </button>
+            </div>
+
+            <div id="notes-list"></div>
         </div>
 
         <!-- VISTA: BIBLIA -->
@@ -1186,6 +1365,20 @@
                     </div>
                 </div>
                 <button class="btn btn-primary btn-full" onclick="updateProfile()">Guardar Cambios</button>
+
+                <div style="margin-top: 32px; border-top: 1px solid var(--border); padding-top: 24px;">
+                    <h3 style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">SEGURIDAD Y RESPALDO
+                    </h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <button class="btn btn-outline" onclick="exportBackup()">
+                            <i data-lucide="download"></i> Exportar
+                        </button>
+                        <button class="btn btn-outline" onclick="document.getElementById('import-file').click()">
+                            <i data-lucide="upload"></i> Importar
+                        </button>
+                    </div>
+                    <input type="file" id="import-file" hidden accept=".json" onchange="importBackup(this)">
+                </div>
             </div>
         </div>
     </main>
@@ -1194,6 +1387,8 @@
     <nav class="bottom-nav glass">
         <button class="nav-item active" onclick="switchTab('devotional')" id="nav-devotional"><i
                 data-lucide="book-open"></i><span>Devocional</span></button>
+        <button class="nav-item" onclick="switchTab('notes')" id="nav-notes"><i
+                data-lucide="sticky-note"></i><span>Notas</span></button>
         <button class="nav-item" onclick="switchTab('bible')" id="nav-bible"><i
                 data-lucide="scroll"></i><span>Biblia</span></button>
         <button class="nav-item" onclick="switchTab('prayers')" id="nav-prayers"><i
@@ -1296,7 +1491,8 @@
             </div>
             <div class="input-group">
                 <label>Detalles</label>
-                <textarea id="p-details" rows="3" placeholder="Relátale a Dios tu corazón..."></textarea>
+                <textarea id="p-details" rows="3" placeholder="Relátale a Dios tu corazón..."
+                    oninput="autoResize(this)"></textarea>
             </div>
             <button class="btn btn-primary btn-full" onclick="addPrayer()">Guardar Petición</button>
         </div>
@@ -1322,6 +1518,12 @@
     </div>
 
     <script>
+        // --- TEXTAREA AUTO-RESIZE ---
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        }
+
         // --- MODAL UTILS ---
         function closeModalWithAnim(modalId) {
             const modal = document.getElementById(modalId);
@@ -1364,6 +1566,8 @@
             devotionals: {},
             reading: {},
             prayers: [],
+            notes: [],
+            noteSortMode: 'date',
             calendar: { currentMonth: new Date().getMonth(), currentYear: new Date().getFullYear(), target: 'devotional', selectedDate: '', mode: 'days' }
         };
 
@@ -1373,6 +1577,10 @@
         function init() {
             const data = localStorage.getItem(STORAGE_KEY);
             if (data) appState = JSON.parse(data);
+
+            // Ensure new properties exist
+            if (!appState.notes) appState.notes = [];
+            if (!appState.noteSortMode) appState.noteSortMode = 'date';
 
             if (!appState.user) {
                 document.getElementById('onboarding-overlay').style.display = 'flex';
@@ -1384,10 +1592,164 @@
             updateDateUI();
             renderBible();
             renderPrayers();
+
             lucide.createIcons();
         }
 
         function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); }
+
+        // --- BACKUP & SHARING ---
+        function exportBackup() {
+            const data = JSON.stringify(appState, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `respaldo_devocional_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Respaldo exportado correctamente", "download");
+        }
+
+        function importBackup(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.user && data.devotionals) {
+                        appState = data;
+                        save();
+                        window.location.reload();
+                    } else {
+                        showToast("Archivo de respaldo no válido", "alert-triangle");
+                    }
+                } catch (err) {
+                    showToast("Error al leer el archivo", "alert-triangle");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function shareDevotional() {
+            const d = appState.devotionals[appState.viewDate];
+            if (!d || (!d.book && !d.o && !d.i && !d.a && !d.p)) {
+                showToast("No hay contenido para compartir hoy", "info");
+                return;
+            }
+
+            const dateStr = new Date(appState.viewDate + "T12:00:00").toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+            let text = `📖 *Mi Devocional Diario*\n📅 ${dateStr}\n\n`;
+
+            if (d.book) text += `📍 *Pasaje:* ${d.book} ${d.ch}:${d.vs}\n\n`;
+            if (d.o) text += `👁️ *Observación:*\n${d.o}\n\n`;
+            if (d.i) text += `🔍 *Interpretación:*\n${d.i}\n\n`;
+            if (d.a) text += `❤️ *Aplicación:*\n${d.a}\n\n`;
+            if (d.p) text += `🙏 *Oración:*\n${d.p}\n\n`;
+
+            text += `Hecho con *Mi Devocional* ✨`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Mi Devocional Diario',
+                        text: text
+                    });
+                } catch (err) { }
+            } else {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast("Copiado al portapapeles para compartir", "clipboard");
+                });
+            }
+        }
+
+        // --- BIBLE NOTES LOGIC ---
+        function renderNotes() {
+            const list = document.getElementById('notes-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            let sorted = [...appState.notes];
+            if (appState.noteSortMode === 'date') {
+                sorted.sort((a, b) => b.id - a.id);
+            } else if (appState.noteSortMode === 'bible') {
+                sorted.sort((a, b) => {
+                    if (a.bookId !== b.bookId) return a.bookId - b.bookId;
+                    if (a.chapter !== b.chapter) return a.chapter - b.chapter;
+                    return a.vStart - b.vStart;
+                });
+            }
+
+            sorted.forEach(n => {
+                const card = document.createElement('div');
+                card.className = 'note-tile';
+                card.id = `note-${n.id}`;
+                const dateStr = new Date(n.id).toLocaleDateString();
+                const vsText = n.vEnd ? `${n.vStart}-${n.vEnd}` : n.vStart;
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div onclick="toggleNoteExpansion(${n.id})" style="flex:1;">
+                            <h3><i data-lucide="bookmark" style="width:14px; color:var(--primary);"></i> ${n.book} ${n.chapter}:${vsText}</h3>
+                            <div class="note-date">${dateStr}</div>
+                        </div>
+                        <button onclick="deleteNote(${n.id})" style="background:none; border:none; color:var(--text-muted); opacity:0.6;"><i data-lucide="trash-2" style="width:16px;"></i></button>
+                    </div>
+                    <div class="note-body" onclick="toggleNoteExpansion(${n.id})">${n.note}</div>
+                `;
+                list.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function toggleNoteExpansion(id) {
+            const el = document.getElementById(`note-${id}`);
+            el.classList.toggle('expanded');
+        }
+
+        function setNoteSort(mode) {
+            appState.noteSortMode = mode;
+            const btnDate = document.getElementById('sort-date');
+            const btnBible = document.getElementById('sort-bible');
+            if (btnDate) btnDate.classList.toggle('active', mode === 'date');
+            if (btnBible) btnBible.classList.toggle('active', mode === 'bible');
+            save(); renderNotes();
+        }
+
+        function addNote() {
+            const noteText = document.getElementById('note-input').value.trim();
+            if (!noteText || !bibleSelection.book || !bibleSelection.chapter) {
+                showToast("Falta pasaje o nota", "alert-circle");
+                return;
+            }
+
+            const bookObj = BOOKS.find(b => b.n === bibleSelection.book);
+            const newNote = {
+                id: Date.now(),
+                book: bibleSelection.book,
+                bookId: bookObj.id,
+                chapter: bibleSelection.chapter,
+                vStart: bibleSelection.vStart,
+                vEnd: bibleSelection.vEnd,
+                note: noteText
+            };
+
+            appState.notes.push(newNote);
+            save(); renderNotes();
+
+            // Clear input
+            document.getElementById('note-input').value = '';
+            document.getElementById('note-input').style.height = 'auto';
+            bibleSelection = { book: '', chapter: 0, vStart: 0, vEnd: 0 };
+            updateBibleCards();
+            showToast("Nota guardada", "check");
+        }
+
+        function deleteNote(id) {
+            appState.notes = appState.notes.filter(n => n.id !== id);
+            save(); renderNotes();
+            showToast("Nota eliminada", "trash-2");
+        }
 
         // --- THEME ---
         function setTheme(theme) {
@@ -1677,15 +2039,20 @@
             switchTab('devotional');
         }
 
-        // --- TABS ---
-        function switchTab(tabId) {
+        // --- NAVIGATION ---
+        function switchTab(tab) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(`view-${tabId}`).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(`nav-${tabId}`).classList.add('active');
-            if (tabId === 'devotional') updateDateUI();
-            if (tabId === 'bible') renderBible();
-            window.scrollTo(0, 0);
+            document.getElementById(`view-${tab}`).classList.add('active');
+            document.getElementById(`nav-${tab}`).classList.add('active');
+
+            // Mostrar/Ocultar el contenedor de acciones solo en devocional
+            document.querySelector('.devotional-actions').style.display = tab === 'devotional' ? 'flex' : 'none';
+
+            if (tab === 'devotional') updateDateUI();
+            if (tab === 'bible') renderBible();
+            if (tab === 'notes') renderNotes();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
 
@@ -1695,7 +2062,8 @@
         let isEditLocked = false;
 
         function openBibleModal(type) {
-            if (isEditLocked) return;
+            const isNotesView = document.getElementById('view-notes').classList.contains('active');
+            if (isEditLocked && !isNotesView) return;
             if (type === 'chapter' && !bibleSelection.book) return;
             if (type === 'verse' && (!bibleSelection.book || !bibleSelection.chapter)) return;
 
@@ -1748,7 +2116,7 @@
                 confirmBtn.className = 'btn btn-primary btn-full';
                 confirmBtn.style.marginTop = '20px';
                 confirmBtn.textContent = 'Confirmar Versículos';
-                confirmBtn.onclick = () => { closeBibleModal(); markUnsaved(); updateBibleCards(); };
+                confirmBtn.onclick = () => { closeBibleModal(); updateBibleCards(); };
                 content.appendChild(confirmBtn);
             }
             lucide.createIcons();
@@ -1801,31 +2169,67 @@
         }
 
         function updateBibleCards() {
-            document.getElementById('card-book-text').textContent = bibleSelection.book || 'Seleccionar Libro';
-
+            // Update Devotional section
+            const bookText = document.getElementById('card-book-text');
             const capCard = document.getElementById('card-chapter');
             const capText = document.getElementById('card-chapter-text');
-            if (bibleSelection.book) {
-                capCard.classList.remove('disabled');
-                capText.textContent = bibleSelection.chapter ? `Capítulo ${bibleSelection.chapter}` : 'Capítulo';
-            } else {
-                capCard.classList.add('disabled');
-                capText.textContent = 'Capítulo';
-            }
-
             const vsCard = document.getElementById('card-verse');
             const vsText = document.getElementById('card-verse-text');
-            if (bibleSelection.chapter > 0) {
-                vsCard.classList.remove('disabled');
-                if (bibleSelection.vStart > 0) {
-                    vsText.textContent = bibleSelection.vEnd > 0 ? `Vrs ${bibleSelection.vStart}-${bibleSelection.vEnd}` : `Versículo ${bibleSelection.vStart}`;
+
+            // Update Notes section
+            const bookTextN = document.getElementById('card-book-text-notes');
+            const capCardN = document.getElementById('card-chapter-notes');
+            const capTextN = document.getElementById('card-chapter-text-notes');
+            const vsCardN = document.getElementById('card-verse-notes');
+            const vsTextN = document.getElementById('card-verse-text-notes');
+
+            const vsShort = bibleSelection.vStart > 0 ? (bibleSelection.vEnd > 0 ? `${bibleSelection.vStart}-${bibleSelection.vEnd}` : `${bibleSelection.vStart}`) : 'Vs';
+            const vsLong = bibleSelection.vStart > 0 ? (bibleSelection.vEnd > 0 ? `Vrs ${bibleSelection.vStart}-${bibleSelection.vEnd}` : `Versículo ${bibleSelection.vStart}`) : 'Versículos';
+
+            // Devotional UI
+            if (bookText) bookText.textContent = bibleSelection.book || 'Seleccionar Libro';
+            if (capCard) {
+                if (bibleSelection.book) {
+                    capCard.classList.remove('disabled');
+                    capText.textContent = bibleSelection.chapter ? `Capítulo ${bibleSelection.chapter}` : 'Capítulo';
                 } else {
+                    capCard.classList.add('disabled');
+                    capText.textContent = 'Capítulo';
+                }
+            }
+            if (vsCard) {
+                if (bibleSelection.chapter > 0) {
+                    vsCard.classList.remove('disabled');
+                    vsText.textContent = vsLong;
+                } else {
+                    vsCard.classList.add('disabled');
                     vsText.textContent = 'Versículos';
                 }
-            } else {
-                vsCard.classList.add('disabled');
-                vsText.textContent = 'Versículos';
             }
+
+            // Notes UI
+            if (bookTextN) bookTextN.textContent = bibleSelection.book || 'Libro';
+            if (capCardN) {
+                if (bibleSelection.book) {
+                    capCardN.classList.remove('disabled');
+                    capTextN.textContent = bibleSelection.chapter ? `Cap ${bibleSelection.chapter}` : 'Cap';
+                } else {
+                    capCardN.classList.add('disabled');
+                    capTextN.textContent = 'Cap';
+                }
+            }
+            if (vsCardN) {
+                if (bibleSelection.chapter > 0) {
+                    vsCardN.classList.remove('disabled');
+                    vsTextN.textContent = vsShort;
+                } else {
+                    vsCardN.classList.add('disabled');
+                    vsTextN.textContent = 'Vs';
+                }
+            }
+
+            validateDevotionalForm();
+            lucide.createIcons();
         }
 
         function changeDate(offset) {
@@ -1859,10 +2263,13 @@
             }
             updateBibleCards();
 
-            document.getElementById('dev-o').value = entry.o;
-            document.getElementById('dev-i').value = entry.i;
-            document.getElementById('dev-a').value = entry.a;
-            document.getElementById('dev-p').value = entry.p;
+            document.getElementById('dev-o').value = entry.o || '';
+            document.getElementById('dev-i').value = entry.i || '';
+            document.getElementById('dev-a').value = entry.a || '';
+            document.getElementById('dev-p').value = entry.p || '';
+
+            // Auto-resize after loading content
+            ['dev-o', 'dev-i', 'dev-a', 'dev-p'].forEach(id => autoResize(document.getElementById(id)));
 
             // Lock logic for old entries
             const hasContent = entry.book || entry.o || entry.i || entry.a || entry.p;
@@ -1886,18 +2293,24 @@
         function setEditLock(locked) {
             isEditLocked = locked;
             const view = document.getElementById('view-devotional');
-            const fab = document.getElementById('save-fab');
-            const icon = document.getElementById('save-fab-icon');
+            const saveBtn = document.getElementById('save-fab');
+            const shareBtn = document.getElementById('share-fab');
+            const saveIcon = document.getElementById('save-fab-icon');
+            const saveText = document.getElementById('save-text');
 
             if (locked) {
                 view.classList.add('view-locked');
-                fab.className = 'fab-locked';
-                fab.disabled = false;
-                icon.setAttribute('data-lucide', 'lock');
+                saveBtn.className = 'fab-locked';
+                saveBtn.disabled = false;
+                saveIcon.setAttribute('data-lucide', 'lock');
+                if (saveText) saveText.textContent = 'Bloqueado';
+                shareBtn.style.display = 'flex'; // Always show share when locked
             } else {
                 view.classList.remove('view-locked');
-                fab.className = 'fab-unsaved';
-                icon.setAttribute('data-lucide', 'save');
+                saveBtn.className = 'fab-unsaved';
+                saveIcon.setAttribute('data-lucide', 'save');
+                if (saveText) saveText.textContent = 'Guardar';
+                shareBtn.style.display = 'flex'; // Always show share when unlocked
                 validateDevotionalForm();
             }
             lucide.createIcons();
@@ -1909,14 +2322,17 @@
 
         function markUnsaved() {
             const fab = document.getElementById('save-fab');
+            const icon = document.getElementById('save-fab-icon');
+            const text = document.getElementById('save-text');
             fab.className = 'fab-unsaved';
-            document.getElementById('save-fab-icon').setAttribute('data-lucide', 'save');
-            validateDevotionalForm();
+            icon.setAttribute('data-lucide', 'save');
+            if (text) text.textContent = 'Guardar';
             lucide.createIcons();
         }
 
         function validateDevotionalForm() {
             const fab = document.getElementById('save-fab');
+            if (!fab) return;
             const isBibleComplete = bibleSelection.book && bibleSelection.chapter > 0 && bibleSelection.vStart > 0;
             const isOIAComplete = document.getElementById('dev-o').value.trim() !== '' &&
                 document.getElementById('dev-i').value.trim() !== '' &&
