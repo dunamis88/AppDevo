@@ -57,6 +57,7 @@
             outline: none;
         }
 
+        html,
         body {
             margin: 0;
             padding: 0;
@@ -1265,7 +1266,6 @@
                         </div>
                         <i data-lucide="chevron-right" style="width:12px; opacity:0.5;"></i>
                     </div>
-
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top:8px;">
                         <div class="bible-selector-card disabled" id="card-chapter-notes"
                             onclick="openBibleModal('chapter')" style="height:44px; font-size:13px;">
@@ -1283,9 +1283,8 @@
                         </div>
                     </div>
                 </div>
-
                 <textarea id="note-input" placeholder="Escribe tu nota aquí..." oninput="autoResize(this)"
-                    style="background:var(--bg-main); font-size:14px; padding:12px; border-radius:15px;"></textarea>
+                    style="font-size:14px; padding:12px; border-radius:15px;"></textarea>
                 <button class="btn btn-primary btn-full" onclick="addNote()" style="margin-top:16px;">
                     <i data-lucide="plus"></i> Guardar Nota
                 </button>
@@ -1498,6 +1497,8 @@
         </div>
     </div>
 
+
+
     <div class="modal-overlay" id="confirm-modal">
         <div class="modal-sheet" style="padding-bottom: 30px;">
             <div style="text-align: center; margin-bottom: 20px;">
@@ -1522,6 +1523,16 @@
         function autoResize(el) {
             el.style.height = 'auto';
             el.style.height = el.scrollHeight + 'px';
+        }
+
+        // --- LOCAL DATE HELPER ---
+        // Fixes timezone bug: toISOString() uses UTC which shifts date in negative-offset timezones
+        function localDateStr(d) {
+            const date = d || new Date();
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
         }
 
         // --- MODAL UTILS ---
@@ -1562,7 +1573,7 @@
         let appState = {
             user: null,
             theme: 'light',
-            viewDate: new Date().toISOString().split('T')[0],
+            viewDate: localDateStr(),
             devotionals: {},
             reading: {},
             prayers: [],
@@ -1605,7 +1616,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `respaldo_devocional_${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `respaldo_devocional_${localDateStr()}.json`;
             a.click();
             URL.revokeObjectURL(url);
             showToast("Respaldo exportado correctamente", "download");
@@ -1737,7 +1748,7 @@
             appState.notes.push(newNote);
             save(); renderNotes();
 
-            // Clear input
+            // Limpiar formulario
             document.getElementById('note-input').value = '';
             document.getElementById('note-input').style.height = 'auto';
             bibleSelection = { book: '', chapter: 0, vStart: 0, vEnd: 0 };
@@ -1745,25 +1756,52 @@
             showToast("Nota guardada", "check");
         }
 
+        function openNoteModal() {
+            // Reset form before opening
+            bibleSelection = { book: '', chapter: 0, vStart: 0, vEnd: 0 };
+            updateBibleCards();
+            const ta = document.getElementById('note-input');
+            if (ta) { ta.value = ''; ta.style.height = 'auto'; }
+            document.getElementById('note-modal').style.display = 'flex';
+            lucide.createIcons();
+        }
+
+        function closeNoteModal() { closeModalWithAnim('note-modal'); }
+
         function deleteNote(id) {
-            appState.notes = appState.notes.filter(n => n.id !== id);
-            save(); renderNotes();
-            showToast("Nota eliminada", "trash-2");
+            const modal = document.getElementById('confirm-modal');
+            const btn = document.getElementById('btn-confirm-delete');
+            document.querySelector('#confirm-modal h3').textContent = '¿Eliminar Nota?';
+            document.querySelector('#confirm-modal p').textContent = 'Esta acción no se puede deshacer. La nota será borrada permanentemente.';
+            modal.style.display = 'flex';
+            btn.onclick = () => {
+                appState.notes = appState.notes.filter(n => n.id !== id);
+                save();
+                renderNotes();
+                closeConfirmModal();
+                showToast('Nota eliminada', 'trash-2');
+            };
         }
 
         // --- THEME ---
         function setTheme(theme) {
             appState.theme = theme;
             document.body.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-theme', theme);
 
             // Sincronizar barras del sistema (Status bar y Nav bar)
             const metaTheme = document.getElementById('meta-theme-color');
             const themeColor = theme === 'dark' ? '#2D294D' : '#F8F9FD';
             if (metaTheme) metaTheme.setAttribute('content', themeColor);
 
+            // Aplicar color-scheme para que el navegador adapte elementos UI
+            document.documentElement.style.colorScheme = theme;
+
             const icon = document.getElementById('theme-icon');
-            icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
-            lucide.createIcons();
+            if (icon) {
+                icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
+                lucide.createIcons();
+            }
             save();
         }
         document.getElementById('theme-toggle').onclick = () => setTheme(appState.theme === 'light' ? 'dark' : 'light');
@@ -1884,7 +1922,7 @@
                 const firstDay = new Date(appState.calendar.currentYear, appState.calendar.currentMonth, 1).getDay();
                 const daysInMonth = new Date(appState.calendar.currentYear, appState.calendar.currentMonth + 1, 0).getDate();
                 const prevDaysInMonth = new Date(appState.calendar.currentYear, appState.calendar.currentMonth, 0).getDate();
-                const todayStr = new Date().toISOString().split('T')[0];
+                const todayStr = localDateStr();
 
                 for (let i = firstDay; i > 0; i--) {
                     const dayDiv = document.createElement('div');
@@ -2235,8 +2273,8 @@
         function changeDate(offset) {
             const d = new Date(appState.viewDate + "T12:00:00");
             d.setDate(d.getDate() + offset);
-            const str = d.toISOString().split('T')[0];
-            const today = new Date().toISOString().split('T')[0];
+            const str = localDateStr(d);
+            const today = localDateStr();
             if (str > today) return;
             appState.viewDate = str; updateDateUI();
         }
@@ -2244,9 +2282,9 @@
         function updateDateUI() {
             const d = new Date(appState.viewDate + "T12:00:00");
             const options = { weekday: 'long', day: 'numeric', month: 'long' };
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('header-date').textContent = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
-            document.getElementById('date-display-trigger').textContent = appState.viewDate === today ? 'Hoy' : d.toLocaleDateString('es-ES', options);
+            const today = localDateStr();
+            document.getElementById('header-date').textContent = new Date(localDateStr() + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+            document.getElementById('date-display-trigger').textContent = d.toLocaleDateString('es-ES', options);
             document.getElementById('next-date-btn').disabled = appState.viewDate === today;
 
             const entry = appState.devotionals[appState.viewDate] || { book: '', ch: '', vs: '', o: '', i: '', a: '', p: '' };
@@ -2444,7 +2482,7 @@
         function renderPrayers() {
             const active = document.getElementById('prayers-active'); const done = document.getElementById('prayers-answered');
             active.innerHTML = ''; done.innerHTML = '';
-            const todayStr = new Date().toISOString().split('T')[0];
+            const todayStr = localDateStr();
 
             appState.prayers.forEach(p => {
                 const card = document.createElement('div'); card.className = 'prayer-tile'; const cDate = new Date(p.created).toLocaleDateString();
@@ -2461,7 +2499,7 @@
                         <p style="font-size: 14px; color: var(--text-muted);">${p.details || ''}</p>
                         <div class="prayer-btns">
                             <button class="btn btn-outline ${prayedToday ? 'btn-prayed' : ''}" onclick="markPrayedToday(${p.id})">
-                                ${prayedToday ? '<i data-lucide="check"></i> ¡Amén!' : '🙏 Oré hoy'}
+                                ${prayedToday ? '¡Amén!' : 'Oré hoy'}
                             </button>
                             <button class="btn btn-primary" onclick="markAnswered(${p.id})">Respondida</button>
                         </div>`;
@@ -2502,7 +2540,7 @@
 
         function markPrayedToday(id) {
             const p = appState.prayers.find(x => x.id === id);
-            const todayStr = new Date().toISOString().split('T')[0];
+            const todayStr = localDateStr();
             if (p.lastPrayed === todayStr) return; // Already prayed
 
             p.lastPrayed = todayStr;
@@ -2521,6 +2559,7 @@
                     if (overlay.id === 'camera-modal') closeCameraUI();
                     if (overlay.id === 'prayer-modal') closePrayerModal();
                     if (overlay.id === 'confirm-modal') closeConfirmModal();
+                    if (overlay.id === 'note-modal') closeNoteModal();
                 }
             });
         });
