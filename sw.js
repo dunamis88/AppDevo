@@ -1,11 +1,16 @@
-const CACHE_NAME = 'devocional-v3'; // Nueva versión para forzar actualización
+const CACHE_NAME = 'bible-note-v7';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon.png',
+  './biblias/RV60.json',
+  './biblias/NVI.json',
+  './biblias/NTV.mybible',
   'https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Poppins:wght@400;500;600&display=swap',
-  'https://unpkg.com/lucide@latest'
+  'https://unpkg.com/lucide@latest',
+  'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.wasm'
 ];
 
 self.addEventListener('install', (event) => {

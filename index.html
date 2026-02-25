@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Mi Devocional</title>
+    <title>Bible Note</title>
     <!-- SEO & PWA Meta -->
     <meta name="description" content="Tu compañero diario para el devocional, lectura bíblica y oración. 100% offline.">
     <meta name="theme-color" id="meta-theme-color" content="#2D294D">
@@ -18,6 +18,7 @@
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js"></script>
 
     <style>
         :root {
@@ -55,6 +56,21 @@
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             outline: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Allow selection only for user content */
+        .oia-card textarea,
+        .note-tile,
+        .prayer-tile,
+        #note-input,
+        #p-title,
+        #p-details,
+        input[type="text"],
+        textarea {
+            user-select: text;
+            -webkit-user-select: text;
         }
 
         html,
@@ -547,6 +563,27 @@
             margin-bottom: 16px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .prayer-tile:active {
+            transform: scale(0.98);
+        }
+
+        .prayer-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-top: 0;
+        }
+
+        .prayer-tile.expanded .prayer-body {
+            max-height: 1000px;
+            /* Large enough */
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px dashed var(--border);
         }
 
         .prayer-tile h3 {
@@ -602,6 +639,26 @@
             color: var(--text-main);
         }
 
+        .btn-icon {
+            padding: 8px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: var(--border);
+            color: var(--primary);
+        }
+
         .btn-full {
             width: 100%;
             padding: 16px;
@@ -625,7 +682,7 @@
         .note-tile {
             background: var(--bg-card);
             border-radius: 20px;
-            padding: 16px;
+            padding: 12px 16px;
             margin-bottom: 12px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
@@ -642,6 +699,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            margin: 0;
         }
 
         .note-date {
@@ -658,14 +716,61 @@
             line-height: 1.6;
             color: var(--text-muted);
             margin-top: 0;
+        }
+
+        .note-text-content {
             white-space: pre-wrap;
+            color: var(--text-main);
         }
 
         .note-tile.expanded .note-body {
-            max-height: 500px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px dashed var(--border);
+            max-height: 1000px;
+            margin-top: 4px;
+            padding-top: 4px;
+        }
+
+        .note-verse-text {
+            font-size: 15px;
+            font-style: italic;
+            color: white;
+            background: var(--primary);
+            padding: 10px 15px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(110, 86, 207, 0.15);
+        }
+
+        .note-verse-text::before {
+            content: '“';
+            font-size: 30px;
+            position: absolute;
+            top: -5px;
+            left: 5px;
+            opacity: 0.2;
+            font-family: serif;
+        }
+
+        .note-verse-text::after {
+            content: '”';
+            font-size: 30px;
+            position: absolute;
+            bottom: -15px;
+            right: 5px;
+            opacity: 0.2;
+            font-family: serif;
+        }
+
+        .note-version-tag {
+            font-size: 10px;
+            background: rgba(110, 86, 207, 0.1);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-left: 8px;
+            text-transform: uppercase;
+            font-weight: 800;
         }
 
         .sort-group {
@@ -1110,6 +1215,240 @@
             background: var(--primary);
             color: white;
         }
+
+        /* Bible Reader Styles */
+        .reader-controls {
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .reader-selectors {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .reader-selectors select {
+            padding: 12px 10px;
+            font-size: 14px;
+            border-radius: 12px;
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .reader-content {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            min-height: 400px;
+            line-height: 1.8;
+            font-size: 17px;
+            text-align: justify;
+        }
+
+        .verse-item {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .verse-num-badge {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--primary);
+            min-width: 22px;
+            text-align: left;
+            margin-top: 2px;
+            opacity: 0.9;
+            flex-shrink: 0;
+        }
+
+        .verse-text {
+            flex: 1;
+            font-size: 18px;
+            line-height: 1.65;
+            letter-spacing: -0.01em;
+        }
+
+        .reader-nav-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .version-pills-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 0 12px;
+            scrollbar-width: none;
+        }
+
+        .version-pills-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .version-pill-item {
+            white-space: nowrap;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--text-muted);
+        }
+
+        .version-pill-item.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(110, 86, 207, 0.2);
+        }
+
+        /* Reader Features Styles */
+        .verse-item {
+            cursor: pointer;
+            transition: background 0.2s;
+            border-radius: 8px;
+            padding: 4px;
+            margin-left: -4px;
+            margin-right: -4px;
+        }
+
+        .verse-item.selected-ui {
+            background: rgba(110, 86, 207, 0.15);
+            outline: 2px dashed var(--primary);
+        }
+
+        .highlight-yellow {
+            background: #ffec99;
+            color: #5c4000;
+        }
+
+        .highlight-green {
+            background: #b2f2bb;
+            color: #1e4d2b;
+        }
+
+        .highlight-blue {
+            background: #a5d8ff;
+            color: #184c71;
+        }
+
+        .highlight-pink {
+            background: #ffbcda;
+            color: #7a1b3c;
+        }
+
+        [data-theme="dark"] .highlight-yellow {
+            background: #fcc41966;
+            color: #fab005;
+        }
+
+        [data-theme="dark"] .highlight-green {
+            background: #40c05766;
+            color: #51cf66;
+        }
+
+        [data-theme="dark"] .highlight-blue {
+            background: #228be666;
+            color: #339af0;
+        }
+
+        [data-theme="dark"] .highlight-pink {
+            background: #f0659566;
+            color: #ff87b2;
+        }
+
+        .verse-has-note::after {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        .selection-toolbar {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(50px);
+            background: var(--bg-card);
+            padding: 8px 16px;
+            border-radius: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            display: none;
+            gap: 12px;
+            align-items: center;
+            z-index: 1000;
+            border: 1px solid var(--border);
+            transition: transform 0.3s, opacity 0.3s;
+            opacity: 0;
+        }
+
+        .selection-toolbar.active {
+            display: flex;
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .color-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dot-none {
+            background: transparent;
+            border-color: var(--border);
+            position: relative;
+        }
+
+        .dot-none::after {
+            content: "/";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff4757;
+            font-weight: bold;
+        }
+
+        .toolbar-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            gap: 4px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--bg-body);
+        }
     </style>
 </head>
 
@@ -1252,43 +1591,8 @@
         <!-- VISTA: NOTAS BÍBLICAS -->
         <div id="view-notes" class="view">
             <h2>Notas Bíblicas</h2>
-            <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Guarda reflexiones rápidas sobre
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Consulta tus reflexiones sobre
                 versículos específicos.</p>
-
-            <div class="card" style="max-width:none; padding:16px; margin-bottom:32px;">
-                <label style="font-size:12px; opacity:0.7;">Pasaje de la Nota</label>
-                <div id="bible-selector-container-notes" style="margin: 10px 0 20px;">
-                    <div class="bible-selector-card" onclick="openBibleModal('book')"
-                        style="height:48px; font-size:13px;">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <i data-lucide="book" style="width:14px;"></i>
-                            <span id="card-book-text-notes">Libro</span>
-                        </div>
-                        <i data-lucide="chevron-right" style="width:12px; opacity:0.5;"></i>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top:8px;">
-                        <div class="bible-selector-card disabled" id="card-chapter-notes"
-                            onclick="openBibleModal('chapter')" style="height:44px; font-size:13px;">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <i data-lucide="layout-grid" style="width:14px;"></i>
-                                <span id="card-chapter-text-notes">Cap</span>
-                            </div>
-                        </div>
-                        <div class="bible-selector-card disabled" id="card-verse-notes"
-                            onclick="openBibleModal('verse')" style="height:44px; font-size:13px;">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <i data-lucide="hash" style="width:14px;"></i>
-                                <span id="card-verse-text-notes">Vs</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <textarea id="note-input" placeholder="Escribe tu nota aquí..." oninput="autoResize(this)"
-                    style="font-size:14px; padding:12px; border-radius:15px;"></textarea>
-                <button class="btn btn-primary btn-full" onclick="addNote()" style="margin-top:16px;">
-                    <i data-lucide="plus"></i> Guardar Nota
-                </button>
-            </div>
 
             <div class="sort-group">
                 <button id="sort-date" class="sort-btn active" onclick="setNoteSort('date')">
@@ -1302,7 +1606,6 @@
             <div id="notes-list"></div>
         </div>
 
-        <!-- VISTA: BIBLIA -->
         <div id="view-bible" class="view">
             <h2>Registro de Lectura</h2>
             <br>
@@ -1317,6 +1620,41 @@
             <div id="ot-container"></div>
             <h3 style="margin: 24px 0 16px; font-size: 18px;">Nuevo Testamento</h3>
             <div id="nt-container"></div>
+        </div>
+
+        <!-- VISTA: BIBLIA (LECTOR) -->
+        <div id="view-reader" class="view">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Santa Biblia</h2>
+                <div id="reader-loading" class="tag" style="background: var(--secondary); display:none;">Cargando...
+                </div>
+            </div>
+
+            <div class="version-pills-container" id="reader-versions">
+                <!-- Pills will be injected here -->
+            </div>
+
+            <div class="reader-controls">
+                <div class="reader-selectors">
+                    <select id="reader-book" onchange="readerOnBookChange()"></select>
+                    <select id="reader-chapter" onchange="readerOnChapterChange()"></select>
+                </div>
+                <div class="reader-nav-btns">
+                    <button class="btn btn-outline" style="flex:1" onclick="readerNav(-1)">
+                        <i data-lucide="chevron-left"></i> Anterior
+                    </button>
+                    <button class="btn btn-primary" style="flex:1" onclick="readerNav(1)">
+                        Siguiente <i data-lucide="chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="reader-content" id="reader-text">
+                <div style="text-align:center; padding: 40px; color: var(--text-muted);">
+                    <i data-lucide="book-open" style="width:48px; height:48px; margin-bottom:16px; opacity:0.3;"></i>
+                    <p>Cargando biblioteca bíblica...</p>
+                </div>
+            </div>
         </div>
 
         <!-- VISTA: ORACIONES -->
@@ -1384,12 +1722,14 @@
 
     <!-- BOTTOM NAV -->
     <nav class="bottom-nav glass">
-        <button class="nav-item active" onclick="switchTab('devotional')" id="nav-devotional"><i
-                data-lucide="book-open"></i><span>Devocional</span></button>
+        <button class="nav-item" onclick="switchTab('devotional')" id="nav-devotional"><i
+                data-lucide="home"></i><span>Inicio</span></button>
         <button class="nav-item" onclick="switchTab('notes')" id="nav-notes"><i
-                data-lucide="sticky-note"></i><span>Notas</span></button>
+                data-lucide="file-text"></i><span>Notas</span></button>
+        <button class="nav-item" onclick="switchTab('reader')" id="nav-reader"><i
+                data-lucide="book"></i><span>Biblia</span></button>
         <button class="nav-item" onclick="switchTab('bible')" id="nav-bible"><i
-                data-lucide="scroll"></i><span>Biblia</span></button>
+                data-lucide="clipboard-check"></i><span>Registro</span></button>
         <button class="nav-item" onclick="switchTab('prayers')" id="nav-prayers"><i
                 data-lucide="sparkles"></i><span>Oraciones</span></button>
     </nav>
@@ -1518,6 +1858,56 @@
         </div>
     </div>
 
+    <!-- CONGRATULATIONS MODAL -->
+    <div class="modal-overlay" id="congrats-modal">
+        <div class="modal-sheet" style="padding-bottom: 40px; text-align: center;">
+            <div style="font-size: 60px; margin-bottom: 20px;">🏆</div>
+            <h2 style="font-size: 24px; margin-bottom: 10px; color: var(--primary);">¡Felicitaciones!</h2>
+            <p id="congrats-text"
+                style="color: var(--text-muted); font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                Has completado la lectura del libro de <strong>Génesis</strong>. ¡Sigue así!
+            </p>
+            <button class="btn btn-primary btn-full" onclick="closeCongratsModal()">
+                ¡Gloria a Dios! 🙏
+            </button>
+        </div>
+    </div>
+
+    <!-- SELECTION TOOLBAR -->
+    <div id="reader-toolbar" class="selection-toolbar">
+        <div class="color-dot dot-none" onclick="applyReaderHighlight(null)" title="Quitar color"></div>
+        <div class="color-dot highlight-yellow" onclick="applyReaderHighlight('yellow')"
+            style="background:#ffd43b; border-color:#fab005;"></div>
+        <div class="color-dot highlight-green" onclick="applyReaderHighlight('green')"
+            style="background:#51cf66; border-color:#40c057;"></div>
+        <div class="color-dot highlight-blue" onclick="applyReaderHighlight('blue')"
+            style="background:#339af0; border-color:#228be6;"></div>
+        <div class="color-dot highlight-pink" onclick="applyReaderHighlight('pink')"
+            style="background:#ff87b2; border-color:#f06595;"></div>
+        <div style="width:1px; height:24px; background:var(--border); margin:0 4px;"></div>
+        <button class="toolbar-btn" onclick="openReaderNoteModal()">
+            <i data-lucide="sticky-note" style="width:18px;"></i>
+            <span>Nota</span>
+        </button>
+    </div>
+
+    <!-- READER NOTE MODAL -->
+    <div id="reader-note-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-sheet" style="max-height: 480px; padding:24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 id="reader-note-title" style="font-size: 18px;">Nota en Juan 3:16</h3>
+                <button class="btn-icon" onclick="closeReaderNoteModal()"><i data-lucide="x"></i></button>
+            </div>
+            <textarea id="reader-note-input" rows="6" placeholder="Escribe tu reflexión aquí..."
+                oninput="autoResize(this)"
+                style="width:100%; padding:12px; border-radius:12px; background:var(--bg-body); border:1px solid var(--border); color:var(--text-main); font-family:inherit; resize:none; font-size: 15px;"></textarea>
+            <div style="display:flex; gap:12px; margin-top:20px;">
+                <button class="btn btn-outline btn-full" onclick="closeReaderNoteModal()">Cancelar</button>
+                <button class="btn btn-primary btn-full" onclick="saveReaderNote()">Guardar Nota</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- TEXTAREA AUTO-RESIZE ---
         function autoResize(el) {
@@ -1562,6 +1952,14 @@
             setTimeout(() => toast.remove(), 3500);
         }
 
+        // --- CONGRATS MODAL ---
+        function showCongrats(bookName) {
+            document.getElementById('congrats-text').innerHTML = `Has completado la lectura del libro de <strong>${bookName}</strong>. ¡Sigue así!`;
+            document.getElementById('congrats-modal').style.display = 'flex';
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+        }
+        function closeCongratsModal() { closeModalWithAnim('congrats-modal'); }
+
         // --- CONNECTION STATUS ---
         window.addEventListener('online', () => showToast('¡Estás en línea! Sincronizando...', 'wifi'));
         window.addEventListener('offline', () => showToast('Modo sin conexión activo 📶', 'wifi-off'));
@@ -1579,6 +1977,8 @@
             prayers: [],
             notes: [],
             noteSortMode: 'date',
+            readerLocation: { version: 'RV60', book: 43, chapter: 3, scroll: 0 },
+            highlights: {}, // Format: "book-ch-vs": "color"
             calendar: { currentMonth: new Date().getMonth(), currentYear: new Date().getFullYear(), target: 'devotional', selectedDate: '', mode: 'days' }
         };
 
@@ -1592,6 +1992,9 @@
             // Ensure new properties exist
             if (!appState.notes) appState.notes = [];
             if (!appState.noteSortMode) appState.noteSortMode = 'date';
+            if (!appState.readerLocation) appState.readerLocation = { version: 'RV60', book: 43, chapter: 3, scroll: 0 };
+            if (appState.readerLocation.scroll === undefined) appState.readerLocation.scroll = 0;
+            if (!appState.highlights) appState.highlights = {};
 
             if (!appState.user) {
                 document.getElementById('onboarding-overlay').style.display = 'flex';
@@ -1603,6 +2006,19 @@
             updateDateUI();
             renderBible();
             renderPrayers();
+
+            // Reader scroll persistence
+            const readerView = document.getElementById('view-reader');
+            readerView.addEventListener('scroll', () => {
+                if (readerView.classList.contains('active')) {
+                    appState.readerLocation.scroll = readerView.scrollTop;
+                }
+            }, { passive: true });
+
+            // Periodic save for scroll position
+            setInterval(() => {
+                if (document.getElementById('view-reader').classList.contains('active')) save();
+            }, 5000);
 
             lucide.createIcons();
         }
@@ -1651,7 +2067,7 @@
             }
 
             const dateStr = new Date(appState.viewDate + "T12:00:00").toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-            let text = `📖 *Mi Devocional Diario*\n📅 ${dateStr}\n\n`;
+            let text = `📖 *Bible Note*\n📅 ${dateStr}\n\n`;
 
             if (d.book) text += `📍 *Pasaje:* ${d.book} ${d.ch}:${d.vs}\n\n`;
             if (d.o) text += `👁️ *Observación:*\n${d.o}\n\n`;
@@ -1659,12 +2075,12 @@
             if (d.a) text += `❤️ *Aplicación:*\n${d.a}\n\n`;
             if (d.p) text += `🙏 *Oración:*\n${d.p}\n\n`;
 
-            text += `Hecho con *Mi Devocional* ✨`;
+            text += `Hecho con *Bible Note* ✨`;
 
             if (navigator.share) {
                 try {
                     await navigator.share({
-                        title: 'Mi Devocional Diario',
+                        title: 'Bible Note',
                         text: text
                     });
                 } catch (err) { }
@@ -1701,13 +2117,21 @@
                 card.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div onclick="toggleNoteExpansion(${n.id})" style="flex:1;">
-                            <h3><i data-lucide="bookmark" style="width:14px; color:var(--primary);"></i> ${n.book} ${n.chapter}:${vsText}</h3>
+                            <h3 style="color:var(--primary); display: flex; align-items: center;">
+                                <i data-lucide="bookmark" style="width:14px;"></i> 
+                                <span style="font-size: 14px; font-weight: 800; opacity: 0.8;">Reflexión</span>
+                                ${n.version ? `<span class="note-version-tag">${n.version}</span>` : ''}
+                            </h3>
                             <div class="note-date">${dateStr}</div>
                         </div>
-                        <button onclick="deleteNote(${n.id})" style="background:none; border:none; color:var(--text-muted); opacity:0.6;"><i data-lucide="trash-2" style="width:16px;"></i></button>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn-icon" onclick="editNoteInModal(${n.id})"><i data-lucide="edit-3" style="width:16px;"></i></button>
+                            <button class="btn-icon" onclick="deleteNote(${n.id})" style="color:#ff4757;"><i data-lucide="trash-2" style="width:16px;"></i></button>
+                        </div>
                     </div>
-                    <div class="note-body" onclick="toggleNoteExpansion(${n.id})">${n.note}</div>
-                `;
+                    <div class="note-body" onclick="toggleNoteExpansion(${n.id})">` +
+                    (n.vText ? `<div style="font-weight: 700; font-size: 12px; margin-top: 4px; color: var(--primary);">${n.book} ${n.chapter}:${vsText}</div><div class="note-verse-text">"${n.vText}"</div>` : '') +
+                    `<div style="margin-top: 4px;"><div style="font-weight: 800; font-size: 10px; text-transform: uppercase; color: var(--text-muted); opacity: 0.7;">Nota:</div><div class="note-text-content">${n.note}</div></div></div>`;
                 list.appendChild(card);
             });
             lucide.createIcons();
@@ -1718,6 +2142,18 @@
             el.classList.toggle('expanded');
         }
 
+        let editingNoteFromModalId = null;
+        function editNoteInModal(id) {
+            const n = appState.notes.find(x => x.id === id);
+            if (!n) return;
+            editingNoteFromModalId = id;
+
+            document.getElementById('reader-note-title').textContent = `Editar Nota: ${n.book} ${n.chapter}:${n.vStart}`;
+            document.getElementById('reader-note-input').value = n.note;
+            document.getElementById('reader-note-modal').style.display = 'flex';
+            autoResize(document.getElementById('reader-note-input'));
+            lucide.createIcons();
+        }
         function setNoteSort(mode) {
             appState.noteSortMode = mode;
             const btnDate = document.getElementById('sort-date');
@@ -1734,18 +2170,34 @@
                 return;
             }
 
-            const bookObj = BOOKS.find(b => b.n === bibleSelection.book);
-            const newNote = {
-                id: Date.now(),
-                book: bibleSelection.book,
-                bookId: bookObj.id,
-                chapter: bibleSelection.chapter,
-                vStart: bibleSelection.vStart,
-                vEnd: bibleSelection.vEnd,
-                note: noteText
-            };
+            if (editingNoteId) {
+                const n = appState.notes.find(x => x.id === editingNoteId);
+                n.book = bibleSelection.book;
+                const bookObj = BOOKS.find(b => b.n === bibleSelection.book);
+                n.bookId = bookObj.id;
+                n.chapter = bibleSelection.chapter;
+                n.vStart = bibleSelection.vStart;
+                n.vEnd = bibleSelection.vEnd;
+                n.note = noteText;
+                editingNoteId = null;
+                showToast("Nota actualizada", "check");
+                document.getElementById('btn-save-note').innerHTML = '<i data-lucide="plus"></i> Guardar Nota';
+                document.getElementById('btn-cancel-note').style.display = 'none';
+            } else {
+                const bookObj = BOOKS.find(b => b.n === bibleSelection.book);
+                const newNote = {
+                    id: Date.now(),
+                    book: bibleSelection.book,
+                    bookId: bookObj.id,
+                    chapter: bibleSelection.chapter,
+                    vStart: bibleSelection.vStart,
+                    vEnd: bibleSelection.vEnd,
+                    note: noteText
+                };
+                appState.notes.push(newNote);
+                showToast("Nota guardada", "check");
+            }
 
-            appState.notes.push(newNote);
             save(); renderNotes();
 
             // Limpiar formulario
@@ -1753,7 +2205,6 @@
             document.getElementById('note-input').style.height = 'auto';
             bibleSelection = { book: '', chapter: 0, vStart: 0, vEnd: 0 };
             updateBibleCards();
-            showToast("Nota guardada", "check");
         }
 
         function openNoteModal() {
@@ -2090,6 +2541,7 @@
             if (tab === 'devotional') updateDateUI();
             if (tab === 'bible') renderBible();
             if (tab === 'notes') renderNotes();
+            if (tab === 'reader') initReader();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -2459,49 +2911,389 @@
         function toggleCh(bid, c) {
             if (!appState.reading[bid]) appState.reading[bid] = [];
             const idx = appState.reading[bid].indexOf(c);
+            const book = BOOKS.find(b => b.id === bid);
+            const wasCompleted = appState.reading[bid].length === book.c;
+
             if (idx > -1) appState.reading[bid].splice(idx, 1);
             else appState.reading[bid].push(c);
-            save(); renderBible(); document.getElementById(`ch-grid-${bid}`).style.display = 'grid';
+
+            save(); renderBible();
+            document.getElementById(`ch-grid-${bid}`).style.display = 'grid';
+
+            if (!wasCompleted && appState.reading[bid].length === book.c) {
+                showCongrats(book.n);
+            }
         }
         function markWholeBook(bid, check) {
             const b = BOOKS.find(x => x.id === bid);
+            const wasCompleted = (appState.reading[bid] || []).length === b.c;
             appState.reading[bid] = check ? Array.from({ length: b.c }, (_, i) => i + 1) : [];
-            save(); renderBible(); document.getElementById(`ch-grid-${bid}`).style.display = 'grid';
+            save(); renderBible();
+            document.getElementById(`ch-grid-${bid}`).style.display = 'grid';
+
+            if (!wasCompleted && check) {
+                showCongrats(b.n);
+            }
+        }
+
+
+
+        // --- BIBLE READER LOGIC ---
+        let bibleLibrary = {};
+        let readerSQL = null;
+        let isReaderLoading = false;
+
+        function cleanReaderText(text, versionType) {
+            if (!text) return "";
+            let clean = String(text);
+
+            // Reemplazar códigos de acentos RTF antes de quitar etiquetas
+            clean = clean.replace(/\\'e1/g, "á").replace(/\\'e9/g, "é").replace(/\\'ed/g, "í")
+                .replace(/\\'f3/g, "ó").replace(/\\'fa/g, "ú").replace(/\\'f1/g, "ñ")
+                .replace(/\\'d1/g, "Ñ").replace(/\\'c1/g, "Á").replace(/\\'c9/g, "É")
+                .replace(/\\'cd/g, "Í").replace(/\\'d3/g, "Ó").replace(/\\'da/g, "Ú");
+
+            if (versionType === "RV60" || versionType === "NVI" || clean.includes('\\')) {
+                // Quitar llaves pero mantener el contenido
+                clean = clean.replace(/\{|\}/g, "");
+                // Quitar etiquetas tipo \par o \f1, pero sin comerse letras siguientes
+                // El regex busca \ seguido de letras y opcionalmente números, y un espacio opcional
+                clean = clean.replace(/\\[a-z]+[0-9]* ?/g, "");
+            }
+
+            // Limpieza general
+            clean = clean.replace(/<[^>]*>/g, ""); // HTML
+            clean = clean.replace(/\([A-Z0-9]\)/g, "").replace(/\[[A-Z0-9]\]/g, ""); // Referencias
+
+            return clean.replace(/\s+/g, ' ').trim();
+        }
+
+        async function initReader() {
+            if (Object.keys(bibleLibrary).length > 0) {
+                renderReaderContent();
+                return;
+            }
+            if (isReaderLoading) return;
+            isReaderLoading = true;
+
+            document.getElementById('reader-loading').style.display = 'block';
+
+            try {
+                const config = { locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${file}` };
+                readerSQL = await initSqlJs(config);
+
+                // Sequential loading with retries for better stability
+                await loadBibleFile('biblias/RV60.json', 'json', 'RV60');
+                await loadBibleFile('biblias/NVI.json', 'json', 'NVI');
+                await loadBibleFile('biblias/NTV.mybible', 'sqlite', 'NTV');
+
+                if (Object.keys(bibleLibrary).length === 0) {
+                    showToast("Sin biblias. Comprueba la carpeta /biblias", "alert-triangle");
+                }
+
+                renderReaderVersions();
+                updateReaderBookList();
+                renderReaderContent(appState.readerLocation.scroll || 0);
+
+            } catch (err) {
+                console.error("Error initReader:", err);
+            } finally {
+                document.getElementById('reader-loading').style.display = 'none';
+                isReaderLoading = false;
+            }
+        }
+
+        async function loadBibleFile(url, type, name) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                if (type === 'json') {
+                    const data = await response.json();
+                    let items = Array.isArray(data) ? data : (data.verses || data.data || data.Bible || []);
+                    if (!Array.isArray(items) && typeof items === 'object') items = Object.values(items).find(v => Array.isArray(v)) || [];
+                    bibleLibrary[name] = { name, type: 'json', data: items };
+                } else if (type === 'sqlite') {
+                    const buffer = await response.arrayBuffer();
+                    const db = new readerSQL.Database(new Uint8Array(buffer));
+                    const res = db.exec("SELECT Book, Chapter, Verse, Scripture FROM Bible");
+                    if (res && res.length > 0) {
+                        const columns = res[0].columns;
+                        const values = res[0].values;
+                        const items = values.map(row => {
+                            let obj = {};
+                            columns.forEach((col, i) => obj[col] = row[i]);
+                            return obj;
+                        });
+                        bibleLibrary[name] = { name, type: 'sqlite', data: items };
+                    }
+                }
+            } catch (e) {
+                console.error(`Error ${name}:`, e);
+                // Detailed error mapping
+                let msg = e.message;
+                if (msg === 'Failed to fetch') msg = "No se pudo conectar al servidor local";
+                showToast(`Error ${name}: ${msg}`, "x-circle");
+            }
+        }
+
+        function renderReaderVersions() {
+            const container = document.getElementById('reader-versions');
+            if (!container) return;
+            container.innerHTML = Object.keys(bibleLibrary).map(v => `
+                <div class="version-pill-item ${v === appState.readerLocation.version ? 'active' : ''}" 
+                     onclick="switchReaderVersion('${v}')">${v}</div>
+            `).join('');
+        }
+
+        function switchReaderVersion(v) {
+            appState.readerLocation.version = v;
+            save();
+            renderReaderVersions();
+            renderReaderContent(appState.readerLocation.scroll || 0);
+        }
+
+        function updateReaderBookList() {
+            const select = document.getElementById('reader-book');
+            if (!select) return;
+            select.innerHTML = BOOKS.map(b => `<option value="${b.id}" ${b.id === appState.readerLocation.book ? 'selected' : ''}>${b.n}</option>`).join('');
+            updateReaderChapterList();
+        }
+
+        function updateReaderChapterList() {
+            const bookId = parseInt(document.getElementById('reader-book').value);
+            const book = BOOKS.find(b => b.id === bookId);
+            const select = document.getElementById('reader-chapter');
+            if (!select) return;
+            select.innerHTML = Array.from({ length: book.c }, (_, i) => i + 1)
+                .map(c => `<option value="${c}" ${c === appState.readerLocation.chapter ? 'selected' : ''}>Capítulo ${c}</option>`).join('');
+        }
+
+        function readerOnBookChange() {
+            appState.readerLocation.book = parseInt(document.getElementById('reader-book').value);
+            appState.readerLocation.chapter = 1;
+            appState.readerLocation.scroll = 0;
+            updateReaderChapterList();
+            renderReaderContent(0);
+            save();
+        }
+
+        function readerOnChapterChange() {
+            appState.readerLocation.chapter = parseInt(document.getElementById('reader-chapter').value);
+            appState.readerLocation.scroll = 0;
+            renderReaderContent(0);
+            save();
+        }
+
+        function renderReaderContent(targetScroll = 0) {
+            const { version, book, chapter } = appState.readerLocation;
+            const bible = bibleLibrary[version];
+            const textContainer = document.getElementById('reader-text');
+            if (!textContainer) return;
+
+            if (!bible) {
+                textContainer.innerHTML = `<div style="text-align:center; padding:40px; opacity:0.5;">Versión ${version} no cargada.</div>`;
+                return;
+            }
+
+            // Map data fields based on type
+            const isSqlite = bible.type === 'sqlite';
+            const firstVerse = bible.data[0] || {};
+            const keys = Object.keys(firstVerse);
+
+            const bKey = isSqlite ? 'Book' : (keys.find(k => /book|libro|id1/i.test(k)) || keys[0]);
+            const cKey = isSqlite ? 'Chapter' : (keys.find(k => /chapter|capitulo|id2/i.test(k)) || keys[1]);
+            const vKey = isSqlite ? 'Verse' : (keys.find(k => /verse|versiculo|id3/i.test(k)) || keys[4] || keys[2]);
+            const tKey = isSqlite ? 'Scripture' : (keys.find(k => /scripture|texto|text|vtext/i.test(k)) || keys[3]);
+
+            const verses = bible.data
+                .filter(v => parseInt(v[bKey]) === book && parseInt(v[cKey]) === chapter)
+                .sort((a, b) => parseInt(a[vKey]) - parseInt(b[vKey]));
+
+            if (verses.length === 0) {
+                textContainer.innerHTML = `<div style="text-align:center; padding:40px; opacity:0.5;">Capítulo no disponible en esta versión.</div>`;
+                return;
+            }
+
+            textContainer.innerHTML = verses.map(v => {
+                const verseNum = parseInt(v[vKey]);
+                const text = cleanReaderText(v[tKey], version);
+                const highlightKey = `${book}-${chapter}-${verseNum}`;
+                const highlightColor = appState.highlights[highlightKey] || "";
+                const hasNote = appState.notes.some(n => n.bookId === book && n.chapter === chapter && (n.vStart === verseNum || (n.vStart <= verseNum && n.vEnd >= verseNum)));
+
+                return `
+                    <div class="verse-item ${highlightColor ? 'highlight-' + highlightColor : ''} ${hasNote ? 'verse-has-note' : ''}" 
+                         onclick="toggleVerseSelection(${book}, ${chapter}, ${verseNum}, this)">
+                        <span class="verse-num-badge">${verseNum}</span>
+                        <div class="verse-text">${text}</div>
+                    </div>`;
+            }).join('');
+
+            // Add "Mark as Read" button at the end
+            const isRead = (appState.reading[book] || []).includes(chapter);
+            const markReadHtml = `
+                <div style="margin-top: 40px; padding: 20px; border-top: 1px solid var(--border); text-align: center;">
+                    <button class="btn ${isRead ? 'btn-prayed' : 'btn-outline'}" 
+                            style="width: 100%; max-width: 250px; margin: 0 auto; gap: 8px;" 
+                            onclick="toggleReaderChapterRead()">
+                        <i data-lucide="${isRead ? 'check-circle' : 'circle'}"></i>
+                        ${isRead ? 'Capítulo Leído' : 'Marcar como Leído'}
+                    </button>
+                </div>
+            `;
+            textContainer.innerHTML += markReadHtml;
+            lucide.createIcons();
+
+            // Restore scroll position
+            const container = document.getElementById('view-reader');
+            container.scrollTop = targetScroll;
+        }
+
+        function readerNav(dir) {
+            let { book: bookId, chapter } = appState.readerLocation;
+            const book = BOOKS.find(b => b.id === bookId);
+
+            if (dir === 1) { // Next
+                if (chapter < book.c) {
+                    appState.readerLocation.chapter++;
+                } else if (bookId < 66) {
+                    appState.readerLocation.book++;
+                    appState.readerLocation.chapter = 1;
+                }
+            } else { // Prev
+                if (chapter > 1) {
+                    appState.readerLocation.chapter--;
+                } else if (bookId > 1) {
+                    appState.readerLocation.book--;
+                    const prevBook = BOOKS.find(b => b.id === appState.readerLocation.book);
+                    appState.readerLocation.chapter = prevBook.c;
+                }
+            }
+
+            appState.readerLocation.scroll = 0;
+            updateReaderBookList();
+            renderReaderContent(0);
+            save();
+        }
+
+        function toggleReaderChapterRead() {
+            const { book, chapter } = appState.readerLocation;
+            if (!appState.reading[book]) appState.reading[book] = [];
+
+            const idx = appState.reading[book].indexOf(chapter);
+            const bookObj = BOOKS.find(b => b.id === book);
+            const wasCompleted = appState.reading[book].length === bookObj.c;
+
+            if (idx > -1) {
+                appState.reading[book].splice(idx, 1);
+                showToast("Capítulo marcado como no leído");
+            } else {
+                appState.reading[book].push(chapter);
+                showToast("¡Capítulo leído! ✨", "check");
+                if (navigator.vibrate) navigator.vibrate(20);
+            }
+
+            save();
+            renderReaderContent(appState.readerLocation.scroll || 0);
+            renderBible(); // Sync the bible view progress
+
+            if (idx === -1 && !wasCompleted && appState.reading[book].length === bookObj.c) {
+                showCongrats(bookObj.n);
+            }
         }
 
         // --- PRAYER LOGIC ---
-        function openPrayerModal() { document.getElementById('prayer-modal').style.display = 'flex'; }
-        function closePrayerModal() { closeModalWithAnim('prayer-modal'); }
-        function addPrayer() {
-            const t = document.getElementById('p-title').value; const d = document.getElementById('p-details').value;
-            if (!t) return;
-            appState.prayers.push({ id: Date.now(), title: t, details: d, created: new Date().toISOString(), responded: null, status: 'active' });
-            save(); renderPrayers(); closePrayerModal();
-            document.getElementById('p-title').value = ''; document.getElementById('p-details').value = '';
+        let editingPrayerId = null;
+        function openPrayerModal(editId = null) {
+            editingPrayerId = editId;
+            const modal = document.getElementById('prayer-modal');
+            const titleInput = document.getElementById('p-title');
+            const detailsInput = document.getElementById('p-details');
+            const modalTitle = document.querySelector('#prayer-modal h3');
+            const saveBtn = document.querySelector('#prayer-modal .btn-primary');
+
+            if (editId) {
+                const p = appState.prayers.find(x => x.id === editId);
+                titleInput.value = p.title;
+                detailsInput.value = p.details || '';
+                modalTitle.textContent = 'Editar Oración';
+                saveBtn.textContent = 'Actualizar Petición';
+            } else {
+                titleInput.value = '';
+                detailsInput.value = '';
+                modalTitle.textContent = 'Nueva Oración';
+                saveBtn.textContent = 'Guardar Petición';
+            }
+            modal.style.display = 'flex';
+            autoResize(detailsInput);
         }
+
+        function closePrayerModal() { editingPrayerId = null; closeModalWithAnim('prayer-modal'); }
+
+        function addPrayer() {
+            const t = document.getElementById('p-title').value;
+            const d = document.getElementById('p-details').value;
+            if (!t) return;
+
+            if (editingPrayerId) {
+                const p = appState.prayers.find(x => x.id === editingPrayerId);
+                p.title = t;
+                p.details = d;
+                editingPrayerId = null;
+                showToast("Oración actualizada", "check");
+            } else {
+                appState.prayers.push({
+                    id: Date.now(),
+                    title: t,
+                    details: d,
+                    created: new Date().toISOString(),
+                    responded: null,
+                    status: 'active'
+                });
+                showToast("Petición guardada", "check");
+            }
+
+            save(); renderPrayers(); closePrayerModal();
+        }
+
+        function togglePrayerExpansion(id) {
+            const el = document.getElementById(`prayer-${id}`);
+            el.classList.toggle('expanded');
+        }
+
         function renderPrayers() {
             const active = document.getElementById('prayers-active'); const done = document.getElementById('prayers-answered');
             active.innerHTML = ''; done.innerHTML = '';
             const todayStr = localDateStr();
 
             appState.prayers.forEach(p => {
-                const card = document.createElement('div'); card.className = 'prayer-tile'; const cDate = new Date(p.created).toLocaleDateString();
+                const card = document.createElement('div');
+                card.className = 'prayer-tile';
+                card.id = `prayer-${p.id}`;
+                const cDate = new Date(p.created).toLocaleDateString();
+
                 if (p.status === 'active') {
                     const prayedToday = p.lastPrayed === todayStr;
                     card.innerHTML = `
                         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <div style="flex:1;">
+                            <div onclick="togglePrayerExpansion(${p.id})" style="flex:1;">
                                 <h3><i data-lucide="circle"></i> ${p.title}</h3>
                                 <div class="prayer-meta">Iniciada el ${cDate}</div>
                             </div>
-                            <button onclick="deletePrayer(${p.id})" style="background:none; border:none; color:var(--text-muted); opacity:0.6; padding:5px;"><i data-lucide="trash-2" style="width:18px;"></i></button>
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn-icon" onclick="openPrayerModal(${p.id})"><i data-lucide="edit-3" style="width:16px;"></i></button>
+                                <button class="btn-icon" onclick="deletePrayer(${p.id})" style="color:#ff4757;"><i data-lucide="trash-2" style="width:16px;"></i></button>
+                            </div>
                         </div>
-                        <p style="font-size: 14px; color: var(--text-muted);">${p.details || ''}</p>
-                        <div class="prayer-btns">
-                            <button class="btn btn-outline ${prayedToday ? 'btn-prayed' : ''}" onclick="markPrayedToday(${p.id})">
-                                ${prayedToday ? '¡Amén!' : 'Oré hoy'}
-                            </button>
-                            <button class="btn btn-primary" onclick="markAnswered(${p.id})">Respondida</button>
+                        <div class="prayer-body" onclick="togglePrayerExpansion(${p.id})">
+                            <p style="font-size: 14px; color: var(--text-muted);">${p.details || ''}</p>
+                            <div class="prayer-btns">
+                                <button class="btn btn-outline ${prayedToday ? 'btn-prayed' : ''}" onclick="event.stopPropagation(); markPrayedToday(${p.id})">
+                                    ${prayedToday ? '¡Amén!' : 'Oré hoy'}
+                                </button>
+                                <button class="btn btn-primary" onclick="event.stopPropagation(); markAnswered(${p.id})">Respondida</button>
+                            </div>
                         </div>`;
                     active.prepend(card);
                 } else {
@@ -2512,8 +3304,8 @@
                             <div class="prayer-meta">Respondida después de ${days} días</div>
                         </div>
                         <div style="display:flex; gap:8px;">
-                            <button onclick="restorePrayer(${p.id})" style="background:none; border:none; color:var(--text-muted);"><i data-lucide="rotate-ccw" style="width:18px;"></i></button>
-                            <button onclick="deletePrayer(${p.id})" style="background:none; border:none; color:var(--text-muted); opacity:0.6;"><i data-lucide="trash-2" style="width:18px;"></i></button>
+                            <button class="btn-icon" onclick="restorePrayer(${p.id})"><i data-lucide="rotate-ccw" style="width:18px;"></i></button>
+                            <button class="btn-icon" onclick="deletePrayer(${p.id})" style="color:#ff4757;"><i data-lucide="trash-2" style="width:18px;"></i></button>
                         </div>
                     </div>`;
                     done.prepend(card);
@@ -2560,9 +3352,129 @@
                     if (overlay.id === 'prayer-modal') closePrayerModal();
                     if (overlay.id === 'confirm-modal') closeConfirmModal();
                     if (overlay.id === 'note-modal') closeNoteModal();
+                    if (overlay.id === 'reader-note-modal') closeReaderNoteModal();
                 }
             });
         });
+
+        // --- READER FEATURES: HIGHLIGHTS & NOTES ---
+        let selectedVerse = null; // { bookId, chapter, verse }
+
+        function toggleVerseSelection(bookId, chapter, verse, element) {
+            const id = `${bookId}-${chapter}-${verse}`;
+
+            // Remove previous selection UI
+            document.querySelectorAll('.verse-item').forEach(el => el.classList.remove('selected-ui'));
+
+            if (selectedVerse && selectedVerse.id === id) {
+                selectedVerse = null;
+                hideReaderToolbar();
+            } else {
+                selectedVerse = { bookId, chapter, verse, id };
+                element.classList.add('selected-ui');
+                showReaderToolbar();
+            }
+        }
+
+        function showReaderToolbar() {
+            const toolbar = document.getElementById('reader-toolbar');
+            toolbar.classList.add('active');
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        function hideReaderToolbar() {
+            const toolbar = document.getElementById('reader-toolbar');
+            toolbar.classList.remove('active');
+            document.querySelectorAll('.verse-item').forEach(el => el.classList.remove('selected-ui'));
+        }
+
+        function applyReaderHighlight(color) {
+            if (!selectedVerse) return;
+            if (color) {
+                appState.highlights[selectedVerse.id] = color;
+            } else {
+                delete appState.highlights[selectedVerse.id];
+            }
+            save();
+            renderReaderContent(appState.readerLocation.scroll || 0);
+            hideReaderToolbar();
+            selectedVerse = null;
+        }
+
+        function openReaderNoteModal() {
+            editingNoteFromModalId = null; // New note mode
+            if (!selectedVerse) return;
+            const book = BOOKS.find(b => b.id === selectedVerse.bookId);
+            document.getElementById('reader-note-title').textContent = `Nota en ${book.n} ${selectedVerse.chapter}:${selectedVerse.verse}`;
+
+            // Look for existing note for this exact verse to pre-fill
+            const existing = appState.notes.find(n => n.bookId === selectedVerse.bookId && n.chapter === selectedVerse.chapter && n.vStart === selectedVerse.verse && n.vEnd === 0);
+            document.getElementById('reader-note-input').value = existing ? existing.note : '';
+
+            document.getElementById('reader-note-modal').style.display = 'flex';
+            autoResize(document.getElementById('reader-note-input'));
+            lucide.createIcons();
+        }
+
+        function closeReaderNoteModal() {
+            editingNoteFromModalId = null;
+            hideReaderToolbar();
+            closeModalWithAnim('reader-note-modal');
+        }
+
+        function saveReaderNote() {
+            const text = document.getElementById('reader-note-input').value.trim();
+            if (!text) return;
+
+            let bookStr = "";
+            let bookId = 0;
+            let chapter = 0;
+            let verse = 0;
+            let vText = "";
+            let version = appState.readerLocation.version;
+
+            if (editingNoteFromModalId) {
+                const n = appState.notes.find(x => x.id === editingNoteFromModalId);
+                n.note = text;
+            } else {
+                if (!selectedVerse) return;
+                const bookObj = BOOKS.find(b => b.id === selectedVerse.bookId);
+                const verseElText = document.querySelector('.verse-item.selected-ui .verse-text')?.textContent || "";
+
+                // Check if note exists for this exact verse to update it
+                const existingIdx = appState.notes.findIndex(n => n.bookId === selectedVerse.bookId && n.chapter === selectedVerse.chapter && n.vStart === selectedVerse.verse && n.vEnd === 0);
+
+                if (existingIdx !== -1) {
+                    appState.notes[existingIdx].note = text;
+                    appState.notes[existingIdx].vText = verseElText;
+                    appState.notes[existingIdx].version = version;
+                } else {
+                    appState.notes.push({
+                        id: Date.now(),
+                        book: bookObj.n,
+                        bookId: bookObj.id,
+                        chapter: selectedVerse.chapter,
+                        vStart: selectedVerse.verse,
+                        vEnd: 0,
+                        note: text,
+                        vText: verseElText,
+                        version: version
+                    });
+                }
+            }
+
+            save();
+            if (document.getElementById('view-reader').classList.contains('active')) {
+                renderReaderContent(appState.readerLocation.scroll || 0);
+            }
+            if (document.getElementById('view-notes').classList.contains('active')) {
+                renderNotes();
+            }
+            closeReaderNoteModal();
+            showToast("Nota guardada ✨", "check");
+            selectedVerse = null;
+            editingNoteFromModalId = null;
+        }
 
         init();
 

@@ -1,6 +1,6 @@
 {
-  "name": "Mi Devocional Diario",
-  "short_name": "Devocional",
+  "name": "Bible Note",
+  "short_name": "Bible Note",
   "description": "Tu compañero diario para el devocional, lectura bíblica y oración.",
   "start_url": "index.html",
   "display": "standalone",
