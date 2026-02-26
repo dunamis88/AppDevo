@@ -452,31 +452,73 @@
         }
 
         /* Progress Bar */
+        /* Progress Bar (Gauge) */
         .stat-card {
             background: var(--bg-card);
-            padding: 24px;
+            padding: 30px 24px 20px;
             border-radius: 30px;
             text-align: center;
             margin-bottom: 24px;
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
         }
 
-        .progress-track {
-            height: 14px;
-            background: var(--bg-body);
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 15px 0;
-            border: 1px solid var(--border);
+        .gauge-container {
+            width: 220px;
+            height: 120px;
+            position: relative;
+            margin-bottom: 0;
         }
 
-        .progress-thumb {
+        .gauge-svg {
+            width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            width: 0%;
-            transition: 1s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 10px;
+        }
+
+        .gauge-track {
+            fill: none;
+            stroke: var(--bg-body);
+            stroke-width: 14;
+            stroke-linecap: round;
+        }
+
+        .gauge-fill {
+            fill: none;
+            stroke: url(#gauge-gradient);
+            stroke-width: 14;
+            stroke-linecap: round;
+            stroke-dasharray: 251.32;
+            /* PI * 80 */
+            stroke-dashoffset: 251.32;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gauge-content {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #total-pct {
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1;
+        }
+
+        .gauge-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-weight: 600;
         }
 
         /* Bible List */
@@ -553,6 +595,86 @@
             height: 20px;
             margin: 0;
             cursor: pointer;
+        }
+
+        /* Achievements */
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .achievement-tile {
+            background: var(--bg-card);
+            padding: 20px 15px;
+            border-radius: 24px;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: 0.3s;
+            opacity: 0.4;
+            filter: grayscale(1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .achievement-tile.unlocked {
+            opacity: 1;
+            filter: grayscale(0);
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(110, 86, 207, 0.05) 100%);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .achievement-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .achievement-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .achievement-desc {
+            font-size: 10px;
+            color: var(--text-muted);
+            line-height: 1.3;
+            display: block;
+        }
+
+        .btn-logros {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 12px 20px;
+            border-radius: 18px;
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            width: 100%;
+        }
+
+        .btn-logros:active {
+            transform: scale(0.96);
+        }
+
+        /* Achievements Modal Specific */
+        #achievements-modal .modal-sheet {
+            background: var(--bg-body);
         }
 
         /* Prayers */
@@ -700,6 +822,28 @@
             align-items: center;
             gap: 8px;
             margin: 0;
+            color: white;
+        }
+
+        .note-header {
+            background: var(--primary);
+            padding: 12px 16px;
+            margin: -12px -16px 12px -16px;
+            border-radius: 20px 20px 5px 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(110, 86, 207, 0.2);
+        }
+
+        .note-header .btn-icon {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+        }
+
+        .note-header .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.25);
         }
 
         .note-date {
@@ -908,15 +1052,20 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: calc(64px + env(safe-area-inset-bottom));
+            height: calc(68px + env(safe-area-inset-bottom));
             background: var(--nav-bg);
             padding-bottom: env(safe-area-inset-bottom);
             display: flex;
-            justify-content: space-around;
+            justify-content: space-evenly;
             align-items: center;
             box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.1);
             border-top: 1px solid var(--border);
             z-index: 1800;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .bottom-nav.hide-nav {
+            transform: translateY(100%);
         }
 
         .nav-item {
@@ -926,11 +1075,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 0;
             gap: 4px;
             font-size: 11px;
             font-weight: 600;
             transition: 0.3s;
-            padding: 8px;
+            padding: 8px 0;
             border-radius: 16px;
         }
 
@@ -1216,66 +1368,201 @@
             color: white;
         }
 
-        /* Bible Reader Styles */
-        .reader-controls {
-            background: var(--bg-card);
-            padding: 16px;
-            border-radius: var(--radius-md);
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-        }
-
-        .reader-selectors {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .reader-selectors select {
-            padding: 12px 10px;
-            font-size: 14px;
-            border-radius: 12px;
+        /* Updated Bible Reader Styles */
+        .reader-header {
+            position: sticky;
+            top: 0;
             background: var(--bg-body);
+            padding: 16px 0;
+            z-index: 1200;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+        }
+
+        .reader-header.hide-header {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+
+        .reader-selector-pill {
+            background: var(--bg-card);
             border: 1px solid var(--border);
+            padding: 10px 18px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .reader-selector-pill:active {
+            transform: scale(0.96);
+        }
+
+        .reader-selector-pill span {
+            font-size: 15px;
+            font-weight: 700;
             color: var(--text-main);
         }
 
-        .reader-content {
+        .reader-nav-float {
+            position: fixed;
+            bottom: 100px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 1500;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+        }
+
+        .reader-nav-float.hide-nav {
+            transform: translateY(120px);
+            opacity: 0;
+        }
+
+        .nav-float-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
             background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            padding: 16px;
-            box-shadow: var(--shadow);
             border: 1px solid var(--border);
-            min-height: 400px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            pointer-events: auto;
+            transition: 0.3s;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .nav-float-btn:active {
+            transform: scale(0.9);
+        }
+
+        .nav-float-btn i {
+            width: 24px;
+            height: 24px;
+        }
+
+        .reader-content {
+            padding-bottom: 40px;
+            /* Minimal space at the end */
             line-height: 1.8;
             font-size: 17px;
             text-align: justify;
         }
 
+        /* Version selection integrated better */
+        .version-pills-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 0 16px;
+            scrollbar-width: none;
+        }
+
+        .version-pills-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .version-pill-item {
+            padding: 8px 16px;
+            border-radius: 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            white-space: nowrap;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .version-pill-item.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(110, 86, 207, 0.3);
+        }
+
+        /* Reader Selector Modal Grid */
+        .selector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .selector-item {
+            padding: 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .selector-item.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .chapter-circles {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
         .verse-item {
-            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-left: -8px;
+            margin-right: -8px;
+            margin-bottom: 8px;
             display: flex;
             align-items: flex-start;
-            gap: 8px;
+            gap: 12px;
+        }
+
+        .verse-item:active {
+            transform: scale(0.99);
         }
 
         .verse-num-badge {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 800;
             color: var(--primary);
-            min-width: 22px;
+            min-width: 24px;
             text-align: left;
-            margin-top: 2px;
-            opacity: 0.9;
+            margin-top: 3px;
+            opacity: 0.8;
             flex-shrink: 0;
         }
 
         .verse-text {
             flex: 1;
-            font-size: 18px;
-            line-height: 1.65;
+            font-size: 17px;
+            line-height: 1.6;
             letter-spacing: -0.01em;
         }
 
@@ -1319,57 +1606,87 @@
 
         /* Reader Features Styles */
         .verse-item {
-            cursor: pointer;
-            transition: background 0.2s;
-            border-radius: 8px;
-            padding: 4px;
-            margin-left: -4px;
-            margin-right: -4px;
+            /* Handled above */
         }
 
         .verse-item.selected-ui {
-            background: rgba(110, 86, 207, 0.15);
-            outline: 2px dashed var(--primary);
+            background: rgba(110, 86, 207, 0.12);
+            position: relative;
+            z-index: 2;
+        }
+
+        .verse-item.selected-ui::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        /* Continuous Highlighting CSS */
+        .verse-item[class*="highlight-"],
+        .verse-item.selected-ui {
+            margin-bottom: 0;
+            border-radius: 0;
+        }
+
+        .highlight-start,
+        .selection-start {
+            border-top-left-radius: 14px !important;
+            border-top-right-radius: 14px !important;
+            margin-top: 8px;
+            padding-top: 14px;
+        }
+
+        .highlight-end,
+        .selection-end {
+            border-bottom-left-radius: 14px !important;
+            border-bottom-right-radius: 14px !important;
+            margin-bottom: 12px !important;
+            padding-bottom: 14px;
         }
 
         .highlight-yellow {
-            background: #ffec99;
-            color: #5c4000;
+            background: #f8bb2a;
+            color: white !important;
         }
 
         .highlight-green {
-            background: #b2f2bb;
-            color: #1e4d2b;
+            background: #48BB78;
+            color: white !important;
         }
 
         .highlight-blue {
-            background: #a5d8ff;
-            color: #184c71;
+            background: #45AEE9;
+            color: white !important;
         }
 
         .highlight-pink {
-            background: #ffbcda;
-            color: #7a1b3c;
+            background: #F04C7D;
+            color: white !important;
         }
 
         [data-theme="dark"] .highlight-yellow {
-            background: #fcc41966;
-            color: #fab005;
+            background: rgba(248, 187, 42, 0.4);
+            color: white !important;
         }
 
         [data-theme="dark"] .highlight-green {
-            background: #40c05766;
-            color: #51cf66;
+            background: rgba(72, 187, 120, 0.4);
+            color: white !important;
         }
 
         [data-theme="dark"] .highlight-blue {
-            background: #228be666;
-            color: #339af0;
+            background: rgba(69, 174, 233, 0.4);
+            color: white !important;
         }
 
         [data-theme="dark"] .highlight-pink {
-            background: #f0659566;
-            color: #ff87b2;
+            background: rgba(240, 76, 125, 0.4);
+            color: white !important;
         }
 
         .verse-has-note::after {
@@ -1519,7 +1836,7 @@
 
     <main>
         <!-- VISTA: DEVOCIONAL -->
-        <div id="view-devotional" class="view active">
+        <div id="view-devotional" class="view">
             <div class="date-navigator">
                 <button class="nav-arrow" onclick="changeDate(-1)"><i data-lucide="chevron-left"></i></button>
                 <span id="date-display-trigger" onclick="openCalendarPicker('devotional')">Hoy</span>
@@ -1572,7 +1889,7 @@
                     oninput="markUnsaved(); autoResize(this)"></textarea>
             </div>
             <div class="oia-card accent-card">
-                <h3><i data-lucide="message-circle" style="width:16px;"></i> MI ORACIÓN</h3>
+                <h3><i data-lucide="flame" style="width:16px;"></i> MI ORACIÓN</h3>
                 <textarea id="dev-p" rows="3" placeholder="Escribe tu oración de hoy..."
                     oninput="markUnsaved(); autoResize(this)"></textarea>
             </div>
@@ -1609,11 +1926,26 @@
         <div id="view-bible" class="view">
             <h2>Registro de Lectura</h2>
             <br>
+            <button class="btn-logros" onclick="openAchievementsModal()">
+                <i data-lucide="award"></i> Ver mis Logros
+            </button>
             <div class="stat-card">
-                <h2 style="font-size: 32px;"><span id="total-pct">0</span>%</h2>
-                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Biblia Completa</p>
-                <div class="progress-track">
-                    <div class="progress-thumb" id="total-progress-bar"></div>
+                <div class="gauge-container">
+                    <svg class="gauge-svg" viewBox="0 0 200 120">
+                        <defs>
+                            <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:var(--primary);stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:var(--secondary);stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Arc from (20,100) to (180,100) radius 80 -->
+                        <path class="gauge-track" d="M 20 100 A 80 80 0 0 1 180 100" />
+                        <path id="total-progress-bar" class="gauge-fill" d="M 20 100 A 80 80 0 0 1 180 100" />
+                    </svg>
+                    <div class="gauge-content">
+                        <h2><span id="total-pct">0</span>%</h2>
+                        <span class="gauge-label">Biblia Completa</span>
+                    </div>
                 </div>
             </div>
             <h3 style="margin-bottom: 16px; font-size: 18px;">Antiguo Testamento</h3>
@@ -1623,30 +1955,35 @@
         </div>
 
         <!-- VISTA: BIBLIA (LECTOR) -->
-        <div id="view-reader" class="view">
+        <div id="view-reader" class="view active">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2>Santa Biblia</h2>
                 <div id="reader-loading" class="tag" style="background: var(--secondary); display:none;">Cargando...
                 </div>
             </div>
 
-            <div class="version-pills-container" id="reader-versions">
-                <!-- Pills will be injected here -->
+            <div class="reader-header">
+                <div class="reader-selector-pill" onclick="openReaderSelector()">
+                    <i data-lucide="book-open" style="width:18px; color:var(--primary);"></i>
+                    <span id="reader-current-book-ch">Cargando...</span>
+                    <i data-lucide="chevron-down" style="width:14px; color:var(--text-muted);"></i>
+                </div>
+                <div id="reader-current-version-tag" class="tag"
+                    style="background:var(--secondary); border-radius:12px; padding:6px 12px; font-size:12px;">RV60
+                </div>
             </div>
 
-            <div class="reader-controls">
-                <div class="reader-selectors">
-                    <select id="reader-book" onchange="readerOnBookChange()"></select>
-                    <select id="reader-chapter" onchange="readerOnChapterChange()"></select>
-                </div>
-                <div class="reader-nav-btns">
-                    <button class="btn btn-outline" style="flex:1" onclick="readerNav(-1)">
-                        <i data-lucide="chevron-left"></i> Anterior
-                    </button>
-                    <button class="btn btn-primary" style="flex:1" onclick="readerNav(1)">
-                        Siguiente <i data-lucide="chevron-right"></i>
-                    </button>
-                </div>
+            <div class="version-pills-container" id="reader-versions">
+                <!-- Pills injected here -->
+            </div>
+
+            <div class="reader-nav-float">
+                <button class="nav-float-btn" onclick="readerNav(-1)" title="Capítulo Anterior">
+                    <i data-lucide="chevron-left"></i>
+                </button>
+                <button class="nav-float-btn" onclick="readerNav(1)" title="Capítulo Siguiente">
+                    <i data-lucide="chevron-right"></i>
+                </button>
             </div>
 
             <div class="reader-content" id="reader-text">
@@ -1660,11 +1997,15 @@
         <!-- VISTA: ORACIONES -->
         <div id="view-prayers" class="view">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h2>Mis Oraciones</h2>
+                <h2 style="display: flex; align-items: center; gap: 12px;"><i data-lucide="flame"
+                        style="color: var(--primary);"></i> Mis Oraciones</h2>
                 <button class="btn btn-primary" onclick="openPrayerModal()"><i data-lucide="plus"></i> Nueva</button>
             </div>
             <div id="prayers-active"></div>
-            <h2 style="margin: 32px 0 16px; color: var(--text-muted); font-size: 18px;">Respondidas</h2>
+            <h2
+                style="margin: 32px 0 16px; color: var(--text-muted); font-size: 18px; display: flex; align-items: center; gap: 10px;">
+                <i data-lucide="check-circle" style="width: 20px;"></i> Respondidas
+            </h2>
             <div id="prayers-answered"></div>
         </div>
 
@@ -1722,16 +2063,18 @@
 
     <!-- BOTTOM NAV -->
     <nav class="bottom-nav glass">
-        <button class="nav-item" onclick="switchTab('devotional')" id="nav-devotional"><i
-                data-lucide="home"></i><span>Inicio</span></button>
-        <button class="nav-item" onclick="switchTab('notes')" id="nav-notes"><i
-                data-lucide="file-text"></i><span>Notas</span></button>
-        <button class="nav-item" onclick="switchTab('reader')" id="nav-reader"><i
-                data-lucide="book"></i><span>Biblia</span></button>
-        <button class="nav-item" onclick="switchTab('bible')" id="nav-bible"><i
-                data-lucide="clipboard-check"></i><span>Registro</span></button>
-        <button class="nav-item" onclick="switchTab('prayers')" id="nav-prayers"><i
-                data-lucide="sparkles"></i><span>Oraciones</span></button>
+        <button class="nav-item" onclick="switchTab('devotional')" id="nav-devotional"><i data-lucide="book-open"
+                style="width:20px; height:20px;"></i><span>Devocional</span></button>
+        <button class="nav-item" onclick="switchTab('notes')" id="nav-notes"><i data-lucide="file-text"
+                style="width:20px; height:20px;"></i><span>Notas</span></button>
+        <button class="nav-item" onclick="switchTab('reader')" id="nav-reader"><i data-lucide="book"
+                style="width:20px; height:20px;"></i><span>Biblia</span></button>
+        <button class="nav-item" onclick="switchTab('bible')" id="nav-bible"><i data-lucide="clipboard-check"
+                style="width:20px; height:20px;"></i><span>Registro</span></button>
+        <button class="nav-item" onclick="switchTab('prayers')" id="nav-prayers">
+            <i data-lucide="flame" style="width:20px; height:20px;"></i>
+            <span>Oraciones</span>
+        </button>
     </nav>
 
     <!-- CALENDAR/SELECTOR MODAL -->
@@ -1798,6 +2141,19 @@
             <div id="bible-modal-content"></div>
         </div>
     </div>
+
+    <!-- READER SELECTOR MODAL -->
+    <div class="modal-overlay" id="reader-selector-modal">
+        <div class="modal-sheet" style="max-height: 85vh; overflow-y: auto;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; position: sticky; top: -24px; background: var(--bg-body); z-index: 10; padding: 15px 0;">
+                <h3 id="selector-modal-title" style="font-size: 20px;">Seleccionar Libro</h3>
+                <button style="background:none; border:none; color:var(--text-muted);"
+                    onclick="closeReaderSelector()"><i data-lucide="x"></i></button>
+            </div>
+            <div id="selector-modal-content"></div>
+        </div>
+    </div>
     <div class="modal-overlay" id="camera-modal">
         <div class="modal-sheet" style="max-height: 90vh;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
@@ -1820,7 +2176,8 @@
     <div class="modal-overlay" id="prayer-modal">
         <div class="modal-sheet">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="font-size: 20px;">Nueva Oración</h3>
+                <h3 style="font-size: 20px; display: flex; align-items: center; gap: 10px;"><i data-lucide="flame"
+                        style="color: var(--primary);"></i> Nueva Oración</h3>
                 <button style="background:none; border:none; color:var(--text-muted);" onclick="closePrayerModal()"><i
                         data-lucide="x"></i></button>
             </div>
@@ -1889,6 +2246,48 @@
             <i data-lucide="sticky-note" style="width:18px;"></i>
             <span>Nota</span>
         </button>
+        <button class="toolbar-btn" onclick="shareVerse()">
+            <i data-lucide="share-2" style="width:18px;"></i>
+            <span>Compartir</span>
+        </button>
+    </div>
+
+    <!-- ACHIEVEMENTS MODAL -->
+    <div class="modal-overlay" id="achievements-modal">
+        <div class="modal-sheet" style="max-height: 85vh; overflow-y: auto;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; position: sticky; top: -24px; background: var(--bg-body); z-index: 10; padding: 15px 0;">
+                <h3 style="font-size: 20px; display: flex; align-items: center; gap: 10px;"><i data-lucide="award"
+                        style="color: var(--primary);"></i> Mis Logros</h3>
+                <button style="background:none; border:none; color:var(--text-muted);"
+                    onclick="closeAchievementsModal()"><i data-lucide="x"></i></button>
+            </div>
+
+            <h4
+                style="font-size: 14px; color: var(--text-muted); margin: 20px 0 10px; text-transform: uppercase; letter-spacing: 1px;">
+                Logros por Porcentaje</h4>
+            <div id="achievements-pct-grid" class="achievement-grid" style="margin-bottom: 30px;"></div>
+
+            <h4
+                style="font-size: 14px; color: var(--text-muted); margin: 20px 0 10px; text-transform: uppercase; letter-spacing: 1px;">
+                Logros por Colecciones</h4>
+            <div id="achievements-books-grid" class="achievement-grid"></div>
+        </div>
+    </div>
+
+    <!-- NEW ACHIEVEMENT POPUP -->
+    <div class="modal-overlay" id="achievement-unlocked-modal" style="z-index: 6000;">
+        <div class="modal-sheet" style="text-align: center; padding: 40px 24px;">
+            <div id="unlock-emoji" style="font-size: 64px; margin-bottom: 20px;">🎖️</div>
+            <h2 style="font-size: 24px; margin-bottom: 8px; color: var(--primary);">¡Logro Desbloqueado!</h2>
+            <h3 id="unlock-name" style="font-size: 20px; margin-bottom: 12px; font-weight: 800;">Nombre del Logro</h3>
+            <p id="unlock-desc"
+                style="color: var(--text-muted); font-size: 15px; line-height: 1.6; margin-bottom: 30px;">Descripción
+                del logro aquí.</p>
+            <button class="btn btn-primary btn-full" onclick="closeUnlockModal()">
+                ¡Gloria a Dios! 🙏
+            </button>
+        </div>
     </div>
 
     <!-- READER NOTE MODAL -->
@@ -1967,6 +2366,42 @@
         // --- BIBLE DATA ---
         const BOOKS = [{ id: 1, n: "Génesis", c: 50, nt: false }, { id: 2, n: "Éxodo", c: 40, nt: false }, { id: 3, n: "Levítico", c: 27, nt: false }, { id: 4, n: "Números", c: 36, nt: false }, { id: 5, n: "Deuteronomio", c: 34, nt: false }, { id: 6, n: "Josué", c: 24, nt: false }, { id: 7, n: "Jueces", c: 21, nt: false }, { id: 8, n: "Rut", c: 4, nt: false }, { id: 9, n: "1 Samuel", c: 31, nt: false }, { id: 10, n: "2 Samuel", c: 24, nt: false }, { id: 11, n: "1 Reyes", c: 22, nt: false }, { id: 12, n: "2 Reyes", c: 25, nt: false }, { id: 13, n: "1 Crónicas", c: 29, nt: false }, { id: 14, n: "2 Crónicas", c: 36, nt: false }, { id: 15, n: "Esdras", c: 10, nt: false }, { id: 16, n: "Nehemías", c: 13, nt: false }, { id: 17, n: "Ester", c: 10, nt: false }, { id: 18, n: "Job", c: 42, nt: false }, { id: 19, n: "Salmos", c: 150, nt: false }, { id: 20, n: "Proverbios", c: 31, nt: false }, { id: 21, n: "Eclesiastés", c: 12, nt: false }, { id: 22, n: "Cantares", c: 8, nt: false }, { id: 23, n: "Isaías", c: 66, nt: false }, { id: 24, n: "Jeremías", c: 52, nt: false }, { id: 25, n: "Lamentaciones", c: 5, nt: false }, { id: 26, n: "Ezequiel", c: 48, nt: false }, { id: 27, n: "Daniel", c: 12, nt: false }, { id: 28, n: "Oseas", c: 14, nt: false }, { id: 29, n: "Joel", c: 3, nt: false }, { id: 30, n: "Amós", c: 9, nt: false }, { id: 31, n: "Abdías", c: 1, nt: false }, { id: 32, n: "Jonás", c: 4, nt: false }, { id: 33, n: "Miqueas", c: 7, nt: false }, { id: 34, n: "Nahúm", c: 3, nt: false }, { id: 35, n: "Habacuc", c: 3, nt: false }, { id: 36, n: "Sofonías", c: 3, nt: false }, { id: 37, n: "Hageo", c: 2, nt: false }, { id: 38, n: "Zacarías", c: 14, nt: false }, { id: 39, n: "Malaquías", c: 4, nt: false }, { id: 40, n: "Mateo", c: 28, nt: true }, { id: 41, n: "Marcos", c: 16, nt: true }, { id: 42, n: "Lucas", c: 24, nt: true }, { id: 43, n: "Juan", c: 21, nt: true }, { id: 44, n: "Hechos", c: 28, nt: true }, { id: 45, n: "Romanos", c: 16, nt: true }, { id: 46, n: "1 Corintios", c: 16, nt: true }, { id: 47, n: "2 Corintios", c: 13, nt: true }, { id: 48, n: "Gálatas", c: 6, nt: true }, { id: 49, n: "Efesios", c: 6, nt: true }, { id: 50, n: "Filipenses", c: 4, nt: true }, { id: 51, n: "Colosenses", c: 4, nt: true }, { id: 52, n: "1 Tesalonicenses", c: 5, nt: true }, { id: 53, n: "2 Tesalonicenses", c: 3, nt: true }, { id: 54, n: "1 Timoteo", c: 6, nt: true }, { id: 55, n: "2 Timoteo", c: 4, nt: true }, { id: 56, n: "Tito", c: 3, nt: true }, { id: 57, n: "Filemón", c: 1, nt: true }, { id: 58, n: "Hebreos", c: 13, nt: true }, { id: 59, n: "Santiago", c: 5, nt: true }, { id: 60, n: "1 Pedro", c: 5, nt: true }, { id: 61, n: "2 Pedro", c: 3, nt: true }, { id: 62, n: "1 Juan", c: 5, nt: true }, { id: 63, n: "2 Juan", c: 1, nt: true }, { id: 64, n: "3 Juan", c: 1, nt: true }, { id: 65, n: "Judas", c: 1, nt: true }, { id: 66, n: "Apocalipsis", c: 22, nt: true }];
 
+        const ACHIEVEMENTS = {
+            BY_PCT: [
+                { id: 'pct_5', pct: 5, name: "Primeros Pasos", desc: "El inicio de la gran travesía.", emoji: "👣" },
+                { id: 'pct_10', pct: 10, name: "Semilla en Tierra Fértil", desc: "La lectura ha echado raíces en tu rutina.", emoji: "🌱" },
+                { id: 'pct_20', pct: 20, name: "Explorador del Pacto", desc: "Ya conoces bien las bases de la historia sagrada.", emoji: "🧭" },
+                { id: 'pct_25', pct: 25, name: "Primer Cuartel", desc: "¡Has completado una cuarta parte del camino!", emoji: "⚓" },
+                { id: 'pct_30', pct: 30, name: "Corazón de Levita", desc: "Dedicación constante al estudio de la Palabra.", emoji: "🎻" },
+                { id: 'pct_40', pct: 40, name: "Cerca de la Cumbre", desc: "El panorama general empieza a aclararse.", emoji: "🏔️" },
+                { id: 'pct_50', pct: 50, name: "A Medio Camino (Misericordia)", desc: "\"Hasta aquí nos ayudó el Señor\".", emoji: "🌓" },
+                { id: 'pct_60', pct: 60, name: "Visión Profética", desc: "Tu constancia supera a la de la mayoría.", emoji: "👁️" },
+                { id: 'pct_70', pct: 70, name: "Luz en la Senda", desc: "La Biblia ya es parte integral de tu día a día.", emoji: "🕯️" },
+                { id: 'pct_75', pct: 75, name: "Tres Cuartas Partes", desc: "El final está a la vista, ¡no te detengas!", emoji: "🏁" },
+                { id: 'pct_80', pct: 80, name: "Obrero Aprobado", desc: "Falta poco para completar el consejo de Dios.", emoji: "👷" },
+                { id: 'pct_90', pct: 90, name: "La Recta Final", desc: "Estás en los últimos libros; la meta es inminente.", emoji: "🏃" },
+                { id: 'pct_95', pct: 95, name: "A las Puertas de Sión", desc: "Solo un último esfuerzo para la victoria total.", emoji: "🏰" },
+                { id: 'pct_100', pct: 100, name: "Alfa y Omega", desc: "¡Has leído cada palabra, de Génesis a Apocalipsis!", emoji: "👑" },
+                { id: 'total_2', count: 2, name: "Doble Porción", desc: "Leer la Biblia completa 2 veces.", emoji: "🌪️" },
+                { id: 'total_5', count: 5, name: "Discípulo Constante", desc: "Leer la Biblia completa 5 veces.", emoji: "🛡️" },
+                { id: 'total_10', count: 10, name: "Maestro de las Escrituras", desc: "¡El nivel Legendario! 10 veces completa.", emoji: "💎" }
+            ],
+            BY_BOOKS: [
+                { id: 'pentateuco', books: [1, 2, 3, 4, 5], name: "Los Cimientos del Mundo", desc: "Exploraste los orígenes y la formación del pueblo.", emoji: "🗺️" },
+                { id: 'historicos', books: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], name: "Conquistas y Coronas", desc: "Viste caer reinos y presenciaste la restauración.", emoji: "⚔️" },
+                { id: 'poeticos', books: [18, 19, 20, 21, 22], name: "El Corazón y la Mente", desc: "Sumergiste tu alma en alabanza y sabiduría.", emoji: "🖋️" },
+                { id: 'salmista', books: [19], name: "Maestro Salmista", desc: "Terminaste los 150 Salmos.", emoji: "🎵" },
+                { id: 'profetas_mayores', books: [23, 24, 25, 26, 27], name: "Los Centinelas de Israel", desc: "Escuchaste las grandes visiones antiguas.", emoji: "✨" },
+                { id: 'profetas_menores', books: [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39], name: "Las Doce Voces", desc: "Completaste el mensaje de los profetas breves.", emoji: "📢" },
+                { id: 'evangelios', books: [40, 41, 42, 43], name: "Los Cuatro Testigos", desc: "Caminaste junto al Maestro y conociste las Nuevas.", emoji: "👣" },
+                { id: 'hechos', books: [44], name: "La Chispa y el Fuego", desc: "Viste el poder del Espíritu en la iglesia primitiva.", emoji: "🔥" },
+                { id: 'paulinas', books: [45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57], name: "El Caminante Incansable", desc: "Viajaste con Pablo y asimilaste la doctrina.", emoji: "👞" },
+                { id: 'pastorales', books: [54, 55, 56, 57], name: "Amigo de Pablo", desc: "Terminaste sus cartas pastorales.", emoji: "✉️" },
+                { id: 'generales', books: [58, 59, 60, 61, 62, 63, 64, 65], name: "Los Pilares de la Fe", desc: "Recibiste instrucción para perseverar en amor.", emoji: "🏛️" },
+                { id: 'apocalipsis', books: [66], name: "El Velo Levantado", desc: "Vislumbraste el triunfo final.", emoji: "🌌" }
+            ]
+        };
+
         // --- GLOBAL STATE ---
         let appState = {
             user: null,
@@ -1978,16 +2413,57 @@
             notes: [],
             noteSortMode: 'date',
             readerLocation: { version: 'RV60', book: 43, chapter: 3, scroll: 0 },
-            highlights: {}, // Format: "book-ch-vs": "color"
+            currentTab: 'reader',
+            highlights: {},
+            unlockedAchievements: [],
+            totalCompletions: 0,
             calendar: { currentMonth: new Date().getMonth(), currentYear: new Date().getFullYear(), target: 'devotional', selectedDate: '', mode: 'days' }
         };
 
         const STORAGE_KEY = 'devocional_pro_v6';
 
+        function switchTab(tabId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            const view = document.getElementById(`view-${tabId}`);
+            if (view) view.classList.add('active');
+            const nav = document.getElementById(`nav-${tabId}`);
+            if (nav) nav.classList.add('active');
+
+            // Show/Hide devotional actions
+            const devActions = document.querySelector('.devotional-actions');
+            if (devActions) devActions.style.display = tabId === 'devotional' ? 'flex' : 'none';
+
+            appState.currentTab = tabId;
+            save();
+
+            if (tabId === 'calendar') renderCalendar();
+            if (tabId === 'bible') renderBible();
+            if (tabId === 'prayers') renderPrayers();
+            if (tabId === 'devotional') updateDateUI();
+            if (tabId === 'notes') renderNotes();
+            if (tabId === 'reader') {
+                initReader();
+            }
+            // Ensure bars are visible when switching tabs
+            const bottomNav = document.querySelector('.bottom-nav');
+            if (bottomNav) bottomNav.classList.remove('hide-nav');
+            const readerHeader = document.querySelector('.reader-header');
+            if (readerHeader) readerHeader.classList.remove('hide-header');
+            const floatNav = document.querySelector('.reader-nav-float');
+            if (floatNav) floatNav.classList.remove('hide-nav');
+
+            window.scrollTo(0, 0);
+        }
+
         // --- INITIALIZATION ---
         function init() {
             const data = localStorage.getItem(STORAGE_KEY);
             if (data) appState = JSON.parse(data);
+
+            // Set initial tab to reader if none exists or for the very first time
+            if (!appState.currentTab) appState.currentTab = 'reader';
 
             // Ensure new properties exist
             if (!appState.notes) appState.notes = [];
@@ -1995,6 +2471,8 @@
             if (!appState.readerLocation) appState.readerLocation = { version: 'RV60', book: 43, chapter: 3, scroll: 0 };
             if (appState.readerLocation.scroll === undefined) appState.readerLocation.scroll = 0;
             if (!appState.highlights) appState.highlights = {};
+            if (!appState.unlockedAchievements) appState.unlockedAchievements = [];
+            if (!appState.totalCompletions) appState.totalCompletions = 0;
 
             if (!appState.user) {
                 document.getElementById('onboarding-overlay').style.display = 'flex';
@@ -2006,12 +2484,46 @@
             updateDateUI();
             renderBible();
             renderPrayers();
+            initReader();
 
-            // Reader scroll persistence
-            const readerView = document.getElementById('view-reader');
-            readerView.addEventListener('scroll', () => {
-                if (readerView.classList.contains('active')) {
-                    appState.readerLocation.scroll = readerView.scrollTop;
+            // Check for progress-based achievements on startup
+            checkAchievements();
+
+            // Set initial view
+            switchTab(appState.currentTab);
+
+            // Reader scroll persistence and auto-hide bars (Uses window scroll)
+            let lastScroll = 0;
+            window.addEventListener('scroll', () => {
+                if (appState.currentTab !== 'reader') return;
+
+                const currentScroll = window.scrollY;
+                appState.readerLocation.scroll = currentScroll;
+
+                const bottomNav = document.querySelector('.bottom-nav');
+                const readerHeader = document.querySelector('.reader-header');
+                const floatNav = document.querySelector('.reader-nav-float');
+
+                // Auto-hide bars logic (Like YouVersion)
+                if (currentScroll > lastScroll && currentScroll > 80) {
+                    // Scrolling down - Hide
+                    if (bottomNav) bottomNav.classList.add('hide-nav');
+                    if (readerHeader) readerHeader.classList.add('hide-header');
+                    if (floatNav) floatNav.classList.add('hide-nav');
+                } else if (currentScroll < lastScroll || currentScroll <= 20) {
+                    // Scrolling up - Show
+                    if (bottomNav) bottomNav.classList.remove('hide-nav');
+                    if (readerHeader) readerHeader.classList.remove('hide-header');
+                    if (floatNav) floatNav.classList.remove('hide-nav');
+                }
+                lastScroll = currentScroll;
+
+                // Show bars when at bottom
+                const isAtBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 20;
+                if (isAtBottom) {
+                    if (bottomNav) bottomNav.classList.remove('hide-nav');
+                    if (readerHeader) readerHeader.classList.remove('hide-header');
+                    if (floatNav) floatNav.classList.remove('hide-nav');
                 }
             }, { passive: true });
 
@@ -2115,23 +2627,29 @@
                 const dateStr = new Date(n.id).toLocaleDateString();
                 const vsText = n.vEnd ? `${n.vStart}-${n.vEnd}` : n.vStart;
                 card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="note-header">
                         <div onclick="toggleNoteExpansion(${n.id})" style="flex:1;">
-                            <h3 style="color:var(--primary); display: flex; align-items: center;">
-                                <i data-lucide="bookmark" style="width:14px;"></i> 
-                                <span style="font-size: 14px; font-weight: 800; opacity: 0.8;">Reflexión</span>
-                                ${n.version ? `<span class="note-version-tag">${n.version}</span>` : ''}
+                            <h3>
+                                <i data-lucide="bookmark" style="width:18px;"></i> 
+                                <span style="font-size: 16px; font-weight: 900; letter-spacing: 0.5px;">${n.book.toUpperCase()} ${n.chapter}:${vsText}</span>
                             </h3>
-                            <div class="note-date">${dateStr}</div>
                         </div>
                         <div style="display:flex; gap:8px;">
                             <button class="btn-icon" onclick="editNoteInModal(${n.id})"><i data-lucide="edit-3" style="width:16px;"></i></button>
-                            <button class="btn-icon" onclick="deleteNote(${n.id})" style="color:#ff4757;"><i data-lucide="trash-2" style="width:16px;"></i></button>
+                            <button class="btn-icon" onclick="deleteNote(${n.id})" style="color: #ff9f9f;"><i data-lucide="trash-2" style="width:16px;"></i></button>
                         </div>
                     </div>
-                    <div class="note-body" onclick="toggleNoteExpansion(${n.id})">` +
-                    (n.vText ? `<div style="font-weight: 700; font-size: 12px; margin-top: 4px; color: var(--primary);">${n.book} ${n.chapter}:${vsText}</div><div class="note-verse-text">"${n.vText}"</div>` : '') +
-                    `<div style="margin-top: 4px;"><div style="font-weight: 800; font-size: 10px; text-transform: uppercase; color: var(--text-muted); opacity: 0.7;">Nota:</div><div class="note-text-content">${n.note}</div></div></div>`;
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div class="note-date">${dateStr}</div>
+                        ${n.version ? `<span class="tag" style="font-size: 10px; opacity: 0.7;">${n.version}</span>` : ''}
+                    </div>
+                    <div class="note-body" onclick="toggleNoteExpansion(${n.id})">
+                        ${n.vText ? `<div style="font-weight: 700; font-size: 12px; margin-top: 4px; color: var(--primary);">${n.book} ${n.chapter}:${vsText}</div><div class="note-verse-text">"${n.vText}"</div>` : ''}
+                        <div style="margin-top: 4px;">
+                            <div style="font-weight: 800; font-size: 10px; text-transform: uppercase; color: var(--text-muted); opacity: 0.7;">Nota:</div>
+                            <div class="note-text-content">${n.note}</div>
+                        </div>
+                    </div>`;
                 list.appendChild(card);
             });
             lucide.createIcons();
@@ -2148,7 +2666,7 @@
             if (!n) return;
             editingNoteFromModalId = id;
 
-            document.getElementById('reader-note-title').textContent = `Editar Nota: ${n.book} ${n.chapter}:${n.vStart}`;
+            document.getElementById('reader-note-title').textContent = `Editar Nota: ${n.book} ${n.chapter}:${n.vStart} `;
             document.getElementById('reader-note-input').value = n.note;
             document.getElementById('reader-note-modal').style.display = 'flex';
             autoResize(document.getElementById('reader-note-input'));
@@ -2351,7 +2869,7 @@
             if (appState.calendar.mode === 'years') {
                 weekDays.style.display = 'none';
                 const startYear = appState.calendar.currentYear - 6;
-                titleText.textContent = `${startYear} - ${startYear + 11}`;
+                titleText.textContent = `${startYear} - ${startYear + 11} `;
                 grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
 
                 for (let i = 0; i < 12; i++) {
@@ -2368,7 +2886,7 @@
                 weekDays.style.display = 'grid';
                 grid.style.gridTemplateColumns = 'repeat(7, 1fr)';
                 const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-                titleText.textContent = `${monthNames[appState.calendar.currentMonth]} ${appState.calendar.currentYear}`;
+                titleText.textContent = `${monthNames[appState.calendar.currentMonth]} ${appState.calendar.currentYear} `;
 
                 const firstDay = new Date(appState.calendar.currentYear, appState.calendar.currentMonth, 1).getDay();
                 const daysInMonth = new Date(appState.calendar.currentYear, appState.calendar.currentMonth + 1, 0).getDate();
@@ -2497,7 +3015,7 @@
         }
 
         function renderProfile() {
-            document.getElementById('user-greeting').textContent = `Hola, ${appState.user.name}`;
+            document.getElementById('user-greeting').textContent = `Hola, ${appState.user.name} `;
             document.getElementById('profile-name').value = appState.user.name;
             document.getElementById('profile-birth-display').textContent = appState.user.birth || 'Seleccionar';
 
@@ -2528,22 +3046,7 @@
             switchTab('devotional');
         }
 
-        // --- NAVIGATION ---
-        function switchTab(tab) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(`view-${tab}`).classList.add('active');
-            document.getElementById(`nav-${tab}`).classList.add('active');
 
-            // Mostrar/Ocultar el contenedor de acciones solo en devocional
-            document.querySelector('.devotional-actions').style.display = tab === 'devotional' ? 'flex' : 'none';
-
-            if (tab === 'devotional') updateDateUI();
-            if (tab === 'bible') renderBible();
-            if (tab === 'notes') renderNotes();
-            if (tab === 'reader') initReader();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
 
 
 
@@ -2673,15 +3176,15 @@
             const vsCardN = document.getElementById('card-verse-notes');
             const vsTextN = document.getElementById('card-verse-text-notes');
 
-            const vsShort = bibleSelection.vStart > 0 ? (bibleSelection.vEnd > 0 ? `${bibleSelection.vStart}-${bibleSelection.vEnd}` : `${bibleSelection.vStart}`) : 'Vs';
-            const vsLong = bibleSelection.vStart > 0 ? (bibleSelection.vEnd > 0 ? `Vrs ${bibleSelection.vStart}-${bibleSelection.vEnd}` : `Versículo ${bibleSelection.vStart}`) : 'Versículos';
+            const vsShort = bibleSelection.vStart > 0 ? (bibleSelection.vEnd > 0 ? `${bibleSelection.vStart} -${bibleSelection.vEnd} ` : `${bibleSelection.vStart} `) : 'Vs';
+            const vsLong = bibleSelection.vStart > 0 ? (bibleSelection.vEnd > 0 ? `Vrs ${bibleSelection.vStart} -${bibleSelection.vEnd} ` : `Versículo ${bibleSelection.vStart} `) : 'Versículos';
 
             // Devotional UI
             if (bookText) bookText.textContent = bibleSelection.book || 'Seleccionar Libro';
             if (capCard) {
                 if (bibleSelection.book) {
                     capCard.classList.remove('disabled');
-                    capText.textContent = bibleSelection.chapter ? `Capítulo ${bibleSelection.chapter}` : 'Capítulo';
+                    capText.textContent = bibleSelection.chapter ? `Capítulo ${bibleSelection.chapter} ` : 'Capítulo';
                 } else {
                     capCard.classList.add('disabled');
                     capText.textContent = 'Capítulo';
@@ -2702,7 +3205,7 @@
             if (capCardN) {
                 if (bibleSelection.book) {
                     capCardN.classList.remove('disabled');
-                    capTextN.textContent = bibleSelection.chapter ? `Cap ${bibleSelection.chapter}` : 'Cap';
+                    capTextN.textContent = bibleSelection.chapter ? `Cap ${bibleSelection.chapter} ` : 'Cap';
                 } else {
                     capCardN.classList.add('disabled');
                     capTextN.textContent = 'Cap';
@@ -2855,7 +3358,7 @@
                 return;
             }
 
-            const vsStr = bibleSelection.vStart > 0 ? (bibleSelection.vEnd > 0 ? `${bibleSelection.vStart}-${bibleSelection.vEnd}` : `${bibleSelection.vStart}`) : '';
+            const vsStr = bibleSelection.vStart > 0 ? (bibleSelection.vEnd > 0 ? `${bibleSelection.vStart} -${bibleSelection.vEnd} ` : `${bibleSelection.vStart} `) : '';
             appState.devotionals[appState.viewDate] = {
                 book: bibleSelection.book,
                 ch: bibleSelection.chapter,
@@ -2900,7 +3403,12 @@
             });
             const globPct = Math.round((totalRead / totalChapters) * 100);
             document.getElementById('total-pct').textContent = globPct;
-            document.getElementById('total-progress-bar').style.width = globPct + '%';
+
+            // Update Gauge
+            const dashArray = 251.32; // PI * 80
+            const offset = dashArray - (globPct / 100) * dashArray;
+            const bar = document.getElementById('total-progress-bar');
+            if (bar) bar.style.strokeDashoffset = offset;
         }
         function toggleChapters(id) {
             const el = document.getElementById(`ch-grid-${id}`);
@@ -2918,22 +3426,26 @@
             else appState.reading[bid].push(c);
 
             save(); renderBible();
-            document.getElementById(`ch-grid-${bid}`).style.display = 'grid';
+            const gridEl = document.getElementById(`ch-grid-${bid}`);
+            if (gridEl) gridEl.style.display = 'grid';
 
             if (!wasCompleted && appState.reading[bid].length === book.c) {
                 showCongrats(book.n);
             }
+            checkAchievements();
         }
         function markWholeBook(bid, check) {
             const b = BOOKS.find(x => x.id === bid);
             const wasCompleted = (appState.reading[bid] || []).length === b.c;
             appState.reading[bid] = check ? Array.from({ length: b.c }, (_, i) => i + 1) : [];
             save(); renderBible();
-            document.getElementById(`ch-grid-${bid}`).style.display = 'grid';
+            const gridEl = document.getElementById(`ch-grid-${bid}`);
+            if (gridEl) gridEl.style.display = 'grid';
 
             if (!wasCompleted && check) {
                 showCongrats(b.n);
             }
+            checkAchievements();
         }
 
 
@@ -2992,7 +3504,6 @@
                 }
 
                 renderReaderVersions();
-                updateReaderBookList();
                 renderReaderContent(appState.readerLocation.scroll || 0);
 
             } catch (err) {
@@ -3050,44 +3561,88 @@
             appState.readerLocation.version = v;
             save();
             renderReaderVersions();
+
+            // Sync header tag
+            const tag = document.getElementById('reader-current-version-tag');
+            if (tag) tag.textContent = v;
+
             renderReaderContent(appState.readerLocation.scroll || 0);
         }
 
-        function updateReaderBookList() {
-            const select = document.getElementById('reader-book');
-            if (!select) return;
-            select.innerHTML = BOOKS.map(b => `<option value="${b.id}" ${b.id === appState.readerLocation.book ? 'selected' : ''}>${b.n}</option>`).join('');
-            updateReaderChapterList();
+        // --- NEW READER SELECTOR LOGIC ---
+        function openReaderSelector() {
+            renderReaderSelectorBooks();
+            document.getElementById('reader-selector-modal').style.display = 'flex';
+            lucide.createIcons();
         }
 
-        function updateReaderChapterList() {
-            const bookId = parseInt(document.getElementById('reader-book').value);
-            const book = BOOKS.find(b => b.id === bookId);
-            const select = document.getElementById('reader-chapter');
-            if (!select) return;
-            select.innerHTML = Array.from({ length: book.c }, (_, i) => i + 1)
-                .map(c => `<option value="${c}" ${c === appState.readerLocation.chapter ? 'selected' : ''}>Capítulo ${c}</option>`).join('');
+        function closeReaderSelector() { closeModalWithAnim('reader-selector-modal'); }
+
+        function renderReaderSelectorBooks() {
+            const content = document.getElementById('selector-modal-content');
+            const title = document.getElementById('selector-modal-title');
+            title.textContent = "Seleccionar Libro";
+
+            content.innerHTML = `
+                <div class="selector-grid">
+                    ${BOOKS.map(b => `
+                        <div class="selector-item ${b.id === appState.readerLocation.book ? 'active' : ''}" 
+                             onclick="selectReaderBook(${b.id})">
+                            ${b.n}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
         }
 
-        function readerOnBookChange() {
-            appState.readerLocation.book = parseInt(document.getElementById('reader-book').value);
-            appState.readerLocation.chapter = 1;
+        function selectReaderBook(id) {
+            const book = BOOKS.find(b => b.id === id);
+            renderReaderSelectorChapters(book);
+        }
+
+        function renderReaderSelectorChapters(book) {
+            const content = document.getElementById('selector-modal-content');
+            const title = document.getElementById('selector-modal-title');
+            title.textContent = `${book.n}: Seleccionar Capítulo`;
+
+            content.innerHTML = `
+                <div style="margin-bottom:20px;">
+                    <button class="btn btn-outline" onclick="renderReaderSelectorBooks()" style="padding:8px 12px; font-size:12px;">
+                        <i data-lucide="chevron-left" style="width:14px;"></i> Volver a libros
+                    </button>
+                </div>
+                <div class="chapter-circles">
+                    ${Array.from({ length: book.c }, (_, i) => i + 1).map(c => `
+                        <div class="chapter-pill ${c === appState.readerLocation.chapter && book.id === appState.readerLocation.book ? 'read' : ''}" 
+                             onclick="selectReaderChapter(${book.id}, ${c})">
+                            ${c}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function selectReaderChapter(bookId, chapter) {
+            appState.readerLocation.book = bookId;
+            appState.readerLocation.chapter = chapter;
             appState.readerLocation.scroll = 0;
-            updateReaderChapterList();
-            renderReaderContent(0);
             save();
-        }
-
-        function readerOnChapterChange() {
-            appState.readerLocation.chapter = parseInt(document.getElementById('reader-chapter').value);
-            appState.readerLocation.scroll = 0;
+            closeReaderSelector();
             renderReaderContent(0);
-            save();
         }
 
         function renderReaderContent(targetScroll = 0) {
             const { version, book, chapter } = appState.readerLocation;
             const bible = bibleLibrary[version];
+
+            // Update Header Display
+            const bookObj = BOOKS.find(b => b.id === book);
+            const headerDisplay = document.getElementById('reader-current-book-ch');
+            if (headerDisplay && bookObj) {
+                headerDisplay.textContent = `${bookObj.n} ${chapter}`;
+            }
+
             const textContainer = document.getElementById('reader-text');
             if (!textContainer) return;
 
@@ -3115,15 +3670,42 @@
                 return;
             }
 
-            textContainer.innerHTML = verses.map(v => {
+            textContainer.innerHTML = verses.map((v, idx) => {
                 const verseNum = parseInt(v[vKey]);
                 const text = cleanReaderText(v[tKey], version);
-                const highlightKey = `${book}-${chapter}-${verseNum}`;
+                const highlightKey = `${version}-${book}-${chapter}-${verseNum}`;
                 const highlightColor = appState.highlights[highlightKey] || "";
+
+                // Block continuity logic
+                const prevV = verses[idx - 1];
+                const nextV = verses[idx + 1];
+                const prevH = prevV ? appState.highlights[`${version}-${book}-${chapter}-${parseInt(prevV[vKey])}`] : null;
+                const nextH = nextV ? appState.highlights[`${version}-${book}-${chapter}-${parseInt(nextV[vKey])}`] : null;
+
+                let blockClass = "";
+                if (highlightColor) {
+                    if (highlightColor !== prevH) blockClass += " highlight-start";
+                    if (highlightColor !== nextH) blockClass += " highlight-end";
+                }
+
                 const hasNote = appState.notes.some(n => n.bookId === book && n.chapter === chapter && (n.vStart === verseNum || (n.vStart <= verseNum && n.vEnd >= verseNum)));
 
+                const currentSelection = selectedVersesByVersion[version] || [];
+                const isSelected = currentSelection.some(sv => sv.verse === verseNum);
+                let selClass = isSelected ? "selected-ui" : "";
+
+                if (isSelected) {
+                    const sortedSel = [...currentSelection].sort((a, b) => a.verse - b.verse);
+                    const selIdx = sortedSel.findIndex(sv => sv.verse === verseNum);
+                    const prevSel = selIdx > 0 && sortedSel[selIdx - 1].verse === verseNum - 1;
+                    const nextSel = selIdx < sortedSel.length - 1 && sortedSel[selIdx + 1].verse === verseNum + 1;
+                    if (!prevSel) selClass += " selection-start";
+                    if (!nextSel) selClass += " selection-end";
+                }
+
                 return `
-                    <div class="verse-item ${highlightColor ? 'highlight-' + highlightColor : ''} ${hasNote ? 'verse-has-note' : ''}" 
+                    <div class="verse-item ${highlightColor ? 'highlight-' + highlightColor : ''} ${blockClass} ${hasNote ? 'verse-has-note' : ''} ${selClass}" 
+                         data-verse="${verseNum}"
                          onclick="toggleVerseSelection(${book}, ${chapter}, ${verseNum}, this)">
                         <span class="verse-num-badge">${verseNum}</span>
                         <div class="verse-text">${text}</div>
@@ -3172,7 +3754,6 @@
             }
 
             appState.readerLocation.scroll = 0;
-            updateReaderBookList();
             renderReaderContent(0);
             save();
         }
@@ -3201,6 +3782,7 @@
             if (idx === -1 && !wasCompleted && appState.reading[book].length === bookObj.c) {
                 showCongrats(bookObj.n);
             }
+            checkAchievements();
         }
 
         // --- PRAYER LOGIC ---
@@ -3278,7 +3860,7 @@
                     card.innerHTML = `
                         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                             <div onclick="togglePrayerExpansion(${p.id})" style="flex:1;">
-                                <h3><i data-lucide="circle"></i> ${p.title}</h3>
+                                <h3><i data-lucide="flame"></i> ${p.title}</h3>
                                 <div class="prayer-meta">Iniciada el ${cDate}</div>
                             </div>
                             <div style="display:flex; gap:8px;">
@@ -3298,16 +3880,21 @@
                     active.prepend(card);
                 } else {
                     const days = Math.floor((new Date(p.responded) - new Date(p.created)) / 86400000);
-                    card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div style="flex:1;">
-                            <h3><i data-lucide="check-circle" style="color:var(--success)"></i> ${p.title}</h3>
-                            <div class="prayer-meta">Respondida después de ${days} días</div>
+                    card.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div onclick="togglePrayerExpansion(${p.id})" style="flex:1;">
+                                <h3><i data-lucide="check-circle" style="color:var(--success)"></i> ${p.title}</h3>
+                                <div class="prayer-meta">Respondida después de ${days} días</div>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn-icon" onclick="restorePrayer(${p.id})"><i data-lucide="rotate-ccw" style="width:18px;"></i></button>
+                                <button class="btn-icon" onclick="deletePrayer(${p.id})" style="color:#ff4757;"><i data-lucide="trash-2" style="width:16px;"></i></button>
+                            </div>
                         </div>
-                        <div style="display:flex; gap:8px;">
-                            <button class="btn-icon" onclick="restorePrayer(${p.id})"><i data-lucide="rotate-ccw" style="width:18px;"></i></button>
-                            <button class="btn-icon" onclick="deletePrayer(${p.id})" style="color:#ff4757;"><i data-lucide="trash-2" style="width:18px;"></i></button>
-                        </div>
-                    </div>`;
+                        <div class="prayer-body" onclick="togglePrayerExpansion(${p.id})">
+                            <p style="font-size: 14px; color: var(--text-muted);">${p.details || ''}</p>
+                            <div class="prayer-meta" style="margin-top: 12px; opacity: 0.7;">Iniciada el ${cDate}</div>
+                        </div>`;
                     done.prepend(card);
                 }
             });
@@ -3353,26 +3940,40 @@
                     if (overlay.id === 'confirm-modal') closeConfirmModal();
                     if (overlay.id === 'note-modal') closeNoteModal();
                     if (overlay.id === 'reader-note-modal') closeReaderNoteModal();
+                    if (overlay.id === 'achievements-modal') closeAchievementsModal();
+                    if (overlay.id === 'achievement-unlocked-modal') closeUnlockModal();
+                    if (overlay.id === 'reader-selector-modal') closeReaderSelector();
                 }
             });
         });
 
         // --- READER FEATURES: HIGHLIGHTS & NOTES ---
-        let selectedVerse = null; // { bookId, chapter, verse }
+        let selectedVersesByVersion = {}; // Version-indexed arrays of { bookId, chapter, verse, id }
 
         function toggleVerseSelection(bookId, chapter, verse, element) {
-            const id = `${bookId}-${chapter}-${verse}`;
+            const version = appState.readerLocation.version;
+            if (!selectedVersesByVersion[version]) selectedVersesByVersion[version] = [];
+            const selectedVerses = selectedVersesByVersion[version];
 
-            // Remove previous selection UI
-            document.querySelectorAll('.verse-item').forEach(el => el.classList.remove('selected-ui'));
+            const id = `${version}-${bookId}-${chapter}-${verse}`;
+            const index = selectedVerses.findIndex(v => v.id === id);
 
-            if (selectedVerse && selectedVerse.id === id) {
-                selectedVerse = null;
-                hideReaderToolbar();
+            if (index > -1) {
+                selectedVerses.splice(index, 1);
             } else {
-                selectedVerse = { bookId, chapter, verse, id };
-                element.classList.add('selected-ui');
+                if (selectedVerses.length > 0 && (selectedVerses[0].bookId !== bookId || selectedVerses[0].chapter !== chapter)) {
+                    selectedVersesByVersion[version] = [];
+                }
+                selectedVersesByVersion[version].push({ bookId, chapter, verse, id });
+            }
+
+            // Redraw content to update classes (start/end logic is complex to do via direct DOM manipulation accurately)
+            renderReaderContent(appState.readerLocation.scroll || 0);
+
+            if (selectedVersesByVersion[version].length > 0) {
                 showReaderToolbar();
+            } else {
+                hideReaderToolbar();
             }
         }
 
@@ -3385,30 +3986,91 @@
         function hideReaderToolbar() {
             const toolbar = document.getElementById('reader-toolbar');
             toolbar.classList.remove('active');
-            document.querySelectorAll('.verse-item').forEach(el => el.classList.remove('selected-ui'));
+            const version = appState.readerLocation.version;
+            selectedVersesByVersion[version] = [];
+            renderReaderContent(appState.readerLocation.scroll || 0);
         }
 
         function applyReaderHighlight(color) {
-            if (!selectedVerse) return;
-            if (color) {
-                appState.highlights[selectedVerse.id] = color;
-            } else {
-                delete appState.highlights[selectedVerse.id];
-            }
+            const version = appState.readerLocation.version;
+            const selectedVerses = selectedVersesByVersion[version] || [];
+            if (selectedVerses.length === 0) return;
+            selectedVerses.forEach(v => {
+                if (color) {
+                    appState.highlights[v.id] = color;
+                } else {
+                    delete appState.highlights[v.id];
+                }
+            });
             save();
             renderReaderContent(appState.readerLocation.scroll || 0);
             hideReaderToolbar();
-            selectedVerse = null;
+        }
+
+        async function shareVerse() {
+            const version = appState.readerLocation.version;
+            const selectedVerses = selectedVersesByVersion[version] || [];
+            if (selectedVerses.length === 0) return;
+
+            selectedVerses.sort((a, b) => a.verse - b.verse);
+            const bookObj = BOOKS.find(b => b.id === selectedVerses[0].bookId);
+            const chapter = selectedVerses[0].chapter;
+
+            let texts = [];
+            let verseNums = [];
+
+            selectedVerses.forEach(v => {
+                const el = document.querySelector(`.verse-item[onclick*="${v.verse}, this"] .verse-text`);
+                if (el) {
+                    texts.push(el.textContent);
+                    verseNums.push(v.verse);
+                }
+            });
+
+            let verseStr = "";
+            if (verseNums.length > 0) {
+                const min = Math.min(...verseNums);
+                const max = Math.max(...verseNums);
+                if (max - min === verseNums.length - 1) {
+                    verseStr = min === max ? `${min}` : `${min}-${max}`;
+                } else {
+                    verseStr = verseNums.join(', ');
+                }
+            }
+
+            const shareText = `"${texts.join(' ')}"\n\n${bookObj.n.toUpperCase()} ${chapter}:${verseStr} - ${version}`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Compartir Versículos',
+                        text: shareText
+                    });
+                } catch (err) { }
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showToast("Copiado al portapapeles", "clipboard");
+                });
+            }
+            hideReaderToolbar();
         }
 
         function openReaderNoteModal() {
-            editingNoteFromModalId = null; // New note mode
-            if (!selectedVerse) return;
-            const book = BOOKS.find(b => b.id === selectedVerse.bookId);
-            document.getElementById('reader-note-title').textContent = `Nota en ${book.n} ${selectedVerse.chapter}:${selectedVerse.verse}`;
+            editingNoteFromModalId = null;
+            const version = appState.readerLocation.version;
+            const selectedVerses = selectedVersesByVersion[version] || [];
+            if (selectedVerses.length === 0) return;
 
-            // Look for existing note for this exact verse to pre-fill
-            const existing = appState.notes.find(n => n.bookId === selectedVerse.bookId && n.chapter === selectedVerse.chapter && n.vStart === selectedVerse.verse && n.vEnd === 0);
+            selectedVerses.sort((a, b) => a.verse - b.verse);
+            const vStart = selectedVerses[0].verse;
+            const vEnd = selectedVerses.length > 1 ? selectedVerses[selectedVerses.length - 1].verse : 0;
+            const book = BOOKS.find(b => b.id === selectedVerses[0].bookId);
+            const chapter = selectedVerses[0].chapter;
+
+            let verseStr = vEnd ? `${vStart}-${vEnd}` : vStart;
+            document.getElementById('reader-note-title').textContent = `Nota en ${book.n} ${chapter}:${verseStr}`;
+
+            const existing = appState.notes.find(n => n.bookId === book.id && n.chapter === chapter && n.vStart === vStart && n.vEnd === vEnd);
             document.getElementById('reader-note-input').value = existing ? existing.note : '';
 
             document.getElementById('reader-note-modal').style.display = 'flex';
@@ -3426,38 +4088,41 @@
             const text = document.getElementById('reader-note-input').value.trim();
             if (!text) return;
 
-            let bookStr = "";
-            let bookId = 0;
-            let chapter = 0;
-            let verse = 0;
-            let vText = "";
-            let version = appState.readerLocation.version;
-
             if (editingNoteFromModalId) {
                 const n = appState.notes.find(x => x.id === editingNoteFromModalId);
                 n.note = text;
             } else {
-                if (!selectedVerse) return;
-                const bookObj = BOOKS.find(b => b.id === selectedVerse.bookId);
-                const verseElText = document.querySelector('.verse-item.selected-ui .verse-text')?.textContent || "";
+                const version = appState.readerLocation.version;
+                const selectedVerses = selectedVersesByVersion[version] || [];
+                if (selectedVerses.length === 0) return;
+                selectedVerses.sort((a, b) => a.verse - b.verse);
+                const bookObj = BOOKS.find(b => b.id === selectedVerses[0].bookId);
+                const chapter = selectedVerses[0].chapter;
+                const vStart = selectedVerses[0].verse;
+                const vEnd = selectedVerses.length > 1 ? selectedVerses[selectedVerses.length - 1].verse : 0;
 
-                // Check if note exists for this exact verse to update it
-                const existingIdx = appState.notes.findIndex(n => n.bookId === selectedVerse.bookId && n.chapter === selectedVerse.chapter && n.vStart === selectedVerse.verse && n.vEnd === 0);
+                let texts = [];
+                selectedVerses.forEach(v => {
+                    const el = document.querySelector(`.verse-item[onclick*="${v.verse}, this"] .verse-text`);
+                    if (el) texts.push(el.textContent);
+                });
+                const combinedVerseText = texts.join(' ');
+
+                const existingIdx = appState.notes.findIndex(n => n.bookId === bookObj.id && n.chapter === chapter && n.vStart === vStart && n.vEnd === vEnd);
 
                 if (existingIdx !== -1) {
                     appState.notes[existingIdx].note = text;
-                    appState.notes[existingIdx].vText = verseElText;
-                    appState.notes[existingIdx].version = version;
+                    appState.notes[existingIdx].vText = combinedVerseText;
                 } else {
                     appState.notes.push({
                         id: Date.now(),
                         book: bookObj.n,
                         bookId: bookObj.id,
-                        chapter: selectedVerse.chapter,
-                        vStart: selectedVerse.verse,
-                        vEnd: 0,
+                        chapter: chapter,
+                        vStart: vStart,
+                        vEnd: vEnd,
                         note: text,
-                        vText: verseElText,
+                        vText: combinedVerseText,
                         version: version
                     });
                 }
@@ -3472,8 +4137,105 @@
             }
             closeReaderNoteModal();
             showToast("Nota guardada ✨", "check");
-            selectedVerse = null;
+            const version = appState.readerLocation.version;
+            selectedVersesByVersion[version] = [];
             editingNoteFromModalId = null;
+        }
+
+        // --- ACHIEVEMENT LOGIC ---
+        function checkAchievements() {
+            let newlyUnlocked = [];
+            const globalRead = Object.values(appState.reading).reduce((acc, val) => acc + val.length, 0);
+            const totalChapters = 1189;
+            const globPct = (globalRead / totalChapters) * 100;
+
+            if (!appState.unlockedAchievements) appState.unlockedAchievements = [];
+            if (!appState.totalCompletions) appState.totalCompletions = 0;
+
+            // Check Percentages
+            ACHIEVEMENTS.BY_PCT.forEach(ach => {
+                if (ach.pct !== undefined) {
+                    if (globPct >= ach.pct && !appState.unlockedAchievements.includes(ach.id)) {
+                        appState.unlockedAchievements.push(ach.id);
+                        newlyUnlocked.push(ach);
+                        if (ach.id === 'pct_100') {
+                            appState.totalCompletions++;
+                        }
+                    }
+                } else if (ach.count !== undefined) {
+                    if (appState.totalCompletions >= ach.count && !appState.unlockedAchievements.includes(ach.id)) {
+                        appState.unlockedAchievements.push(ach.id);
+                        newlyUnlocked.push(ach);
+                    }
+                }
+            });
+
+            // Check Book Collections
+            ACHIEVEMENTS.BY_BOOKS.forEach(ach => {
+                const allCompleted = ach.books.every(bid => {
+                    const book = BOOKS.find(b => b.id === bid);
+                    return (appState.reading[bid] || []).length === book.c;
+                });
+                if (allCompleted && !appState.unlockedAchievements.includes(ach.id)) {
+                    appState.unlockedAchievements.push(ach.id);
+                    newlyUnlocked.push(ach);
+                }
+            });
+
+            if (newlyUnlocked.length > 0) {
+                save();
+                // Show popups one by one with a small delay
+                newlyUnlocked.forEach((ach, index) => {
+                    setTimeout(() => showAchievementPopup(ach), index * 1000);
+                });
+            }
+        }
+
+        function showAchievementPopup(ach) {
+            document.getElementById('unlock-emoji').textContent = ach.emoji;
+            document.getElementById('unlock-name').textContent = ach.name;
+            document.getElementById('unlock-desc').textContent = ach.desc;
+            document.getElementById('achievement-unlocked-modal').style.display = 'flex';
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        }
+
+        function closeUnlockModal() { closeModalWithAnim('achievement-unlocked-modal'); }
+
+        function openAchievementsModal() {
+            renderAchievements();
+            document.getElementById('achievements-modal').style.display = 'flex';
+            lucide.createIcons();
+        }
+
+        function closeAchievementsModal() { closeModalWithAnim('achievements-modal'); }
+
+        function renderAchievements() {
+            const pctGrid = document.getElementById('achievements-pct-grid');
+            const booksGrid = document.getElementById('achievements-books-grid');
+            if (!pctGrid || !booksGrid) return;
+
+            pctGrid.innerHTML = ACHIEVEMENTS.BY_PCT.map(ach => {
+                const isUnlocked = appState.unlockedAchievements.includes(ach.id);
+                return `
+                    <div class="achievement-tile ${isUnlocked ? 'unlocked' : ''}">
+                        <span class="achievement-icon">${ach.emoji}</span>
+                        <span class="achievement-name">${ach.name}</span>
+                        <span class="achievement-desc">${ach.desc}</span>
+                        ${ach.pct ? `<div style="font-size:9px; font-weight:800; color:var(--primary); margin-top:8px;">${ach.pct}%</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            booksGrid.innerHTML = ACHIEVEMENTS.BY_BOOKS.map(ach => {
+                const isUnlocked = appState.unlockedAchievements.includes(ach.id);
+                return `
+                    <div class="achievement-tile ${isUnlocked ? 'unlocked' : ''}">
+                        <span class="achievement-icon">${ach.emoji}</span>
+                        <span class="achievement-name">${ach.name}</span>
+                        <span class="achievement-desc">${ach.desc}</span>
+                    </div>
+                `;
+            }).join('');
         }
 
         init();
