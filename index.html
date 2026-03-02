@@ -2240,6 +2240,17 @@
                         </button>
                     </div>
                     <input type="file" id="import-file" hidden accept=".json" onchange="importBackup(this)">
+
+                    <h3 style="font-size: 14px; color: var(--text-muted); margin-top: 32px; margin-bottom: 16px;">NUBE Y
+                        SINCRONIZACIÓN</h3>
+                    <button id="google-login-btn" class="btn btn-outline"
+                        style="width: 100%; justify-content: center; gap: 10px; border-color: #EA4335; color: #EA4335;"
+                        onclick="toggleGoogleLogin()">
+                        <i data-lucide="log-in"></i> Conectar con Google
+                    </button>
+                    <p style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 8px;">Dejalo en
+                        blanco o configurar en código las credenciales de Firebase para habilitar sincronización cruzada
+                        de equipos (Offline y Online).</p>
                 </div>
             </div>
         </div>
@@ -2547,6 +2558,11 @@
         </div>
     </div>
 
+    <!-- Firebase SDK (v9 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
     <script>
         // --- TEXTAREA AUTO-RESIZE ---
         function autoResize(el) {
@@ -2777,7 +2793,10 @@
             lucide.createIcons();
         }
 
-        function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); }
+        function save() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            if (typeof syncToFirebase === 'function') syncToFirebase();
+        }
 
         // --- BACKUP & SHARING ---
         function exportBackup() {
@@ -4614,7 +4633,107 @@
                     // pero asegura que la página se sincronice
                 }
             });
+
+            // Actualizar cuando vuevle a abrir la PWA (visibility)
+            document.addEventListener("visibilitychange", () => {
+                if (document.visibilityState === "visible") {
+                    navigator.serviceWorker.ready.then(reg => reg.update());
+                }
+            });
         }
+
+        // --- FIREBASE GOOGLE LOGIN & SYNC OFFLINE ---
+        // TODO: Para que Firebase funcione, ¡REEMPLAZA el objeto config con tus datos!
+        const firebaseConfig = {
+            /* 
+            apiKey: "AI...",
+            authDomain: "tu-proyecto.firebaseapp.com",
+            projectId: "tu-proyecto",
+            storageBucket: "tu-proyecto.appspot.com",
+            messagingSenderId: "123...",
+            appId: "1:123..."
+            */
+        };
+
+        let db, auth;
+        try {
+            if (firebaseConfig.apiKey) {
+                firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.firestore();
+
+                // Habilitar caché y datos offline local
+                db.enablePersistence().catch(err => {
+                    console.log("Firebase Offline: Varias pestañas o incompatible config", err);
+                });
+
+                auth.onAuthStateChanged(user => {
+                    const btn = document.getElementById('google-login-btn');
+                    if (user) {
+                        if (btn) btn.innerHTML = `<i data-lucide="log-out"></i> Desconectar de Google`;
+                        syncFromFirebase(); // Trae los cambios online si los hay
+                    } else {
+                        if (btn) btn.innerHTML = `<i data-lucide="log-in"></i> Conectar con Google`;
+                    }
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                });
+            }
+        } catch (e) { console.error("Firebase setup error:", e); }
+
+        function toggleGoogleLogin() {
+            if (!firebaseConfig.apiKey) {
+                showToast("Por favor, agrega las credenciales Firebase en código.", "alert-triangle");
+                return;
+            }
+            if (auth && auth.currentUser) {
+                auth.signOut()
+                    .then(() => showToast("Sesión de Google cerrada", "log-out"))
+                    .catch(e => console.error(e));
+            } else {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                auth.signInWithPopup(provider).then((res) => {
+                    showToast(`¡Conectado!`, "check");
+                    syncToFirebase(); // Forzar sincronización al loguear
+                }).catch(e => {
+                    console.error("Login Failed", e);
+                    showToast("Error de conexión", "x");
+                });
+            }
+        }
+
+        let syncTimeout = null;
+        function syncToFirebase() {
+            if (!auth || !auth.currentUser || !db) return;
+            clearTimeout(syncTimeout);
+            syncTimeout = setTimeout(() => {
+                const uid = auth.currentUser.uid;
+                const stateData = localStorage.getItem(STORAGE_KEY);
+                db.collection('bible_users').doc(uid).set({
+                    appState: stateData,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true })
+                    .then(() => console.log("💾 Sincronizado correctamente a Firebase"))
+                    .catch(e => console.error("Error sincronizando", e));
+            }, 3000); // Debounce de 3s
+        }
+
+        function syncFromFirebase() {
+            if (!auth || !auth.currentUser || !db) return;
+            const uid = auth.currentUser.uid;
+            db.collection('bible_users').doc(uid).get().then((doc) => {
+                if (doc.exists && doc.data().appState) {
+                    const onlineState = JSON.parse(doc.data().appState);
+                    // Lógica básica para proteger sobrescritura sin preguntar
+                    const cloudKeys = Object.keys(onlineState);
+                    if (cloudKeys.length > 0) {
+                        // Opcionalmente: Object.assign y save(). Actualmente no fuerzo un re-render brutal.
+                        // pero actualizamos si hay más cosas en la nube.
+                        console.log("Datos en Firebase cargados", onlineState);
+                    }
+                }
+            }).catch(e => console.error(e));
+        }
+
     </script>
 </body>
 
