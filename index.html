@@ -4658,22 +4658,7 @@
             });
         }
 
-        // The closing brace for the `init` function was missing here, adding it back.
-        // This was likely an oversight in the provided diff, as the original code
-        // had `init()` at the end of the main script block.
-        // Assuming the `init` function was closed before the Firebase section.
-        // If `init` was meant to encompass Firebase, this would be different.
-        // Based on the structure, `init` likely ended before the PWA/Firebase sections.
-        // The provided diff ends with `}` before the new Firebase block, so I'll assume
-        // the previous `}` was the end of a function, and the new `}` is also.
-        // Re-evaluating the original code:
-        // `init()` is called at the end of the main script block.
-        // The `init` function itself is not provided in the snippet, but its closing brace
-        // would be before the PWA and Firebase sections.
-        // The provided diff has `}` then `}` then `</script>`. This suggests two closing braces.
-    // The first `}` closes the `document.addEventListener("visibilitychange", ...)` block.
-    // The second `}` closes the `if ('serviceWorker' in navigator)` block.
-    // So, the `}` before `</script>` is correct.
+
 
     </script>
 
@@ -4757,7 +4742,7 @@
             clearTimeout(syncTimeout);
             syncTimeout = setTimeout(async () => {
                 const uid = auth.currentUser.uid;
-                const stateData = localStorage.getItem('bible_note_state'); // const STORAGE_KEY
+                const stateData = localStorage.getItem('devocional_pro_v6'); // const STORAGE_KEY
                 if (!stateData) return;
                 try {
                     await setDoc(doc(db, "bible_users", uid), {
