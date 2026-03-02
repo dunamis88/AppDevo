@@ -4676,14 +4676,25 @@
                     if (typeof lucide !== 'undefined') lucide.createIcons();
                 });
             }
-        } catch (e) { console.error("Firebase setup error:", e); }
+        } catch (e) {
+            console.error("Firebase setup error:", e);
+        }
 
         function toggleGoogleLogin() {
             if (!firebaseConfig.apiKey) {
                 showToast("Por favor, agrega las credenciales Firebase en código.", "alert-triangle");
                 return;
             }
-            if (auth && auth.currentUser) {
+            if (window.location.protocol === 'file:') {
+                showToast("⚠️ Google Login no funciona abriendo el archivo local (file://). Usa un servidor o sube a GitHub Pages.", "alert-circle");
+                return;
+            }
+            if (!auth) {
+                showToast("Firebase no se inicializó correctamente.", "x");
+                return;
+            }
+
+            if (auth.currentUser) {
                 auth.signOut()
                     .then(() => showToast("Sesión de Google cerrada", "log-out"))
                     .catch(e => console.error(e));
@@ -4693,8 +4704,12 @@
                     showToast(`¡Conectado!`, "check");
                     syncToFirebase(); // Forzar sincronización al loguear
                 }).catch(e => {
-                    console.error("Login Failed", e);
-                    showToast("Error de conexión", "x");
+                    console.error("Login Failed:", e);
+                    if (e.code === 'auth/popup-closed-by-user') {
+                        showToast("Cancelaste el inicio de sesión", "info");
+                    } else {
+                        showToast("Error de conexión: " + e.message, "x");
+                    }
                 });
             }
         }
