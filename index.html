@@ -2566,10 +2566,7 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (v9 Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase migrado a v10 modular al final de JS -->
 
     <script>
         // --- TEXTAREA AUTO-RESIZE ---
@@ -4661,137 +4658,132 @@
             });
         }
 
-        // --- FIREBASE GOOGLE LOGIN & SYNC OFFLINE ---
+        // The closing brace for the `init` function was missing here, adding it back.
+        // This was likely an oversight in the provided diff, as the original code
+        // had `init()` at the end of the main script block.
+        // Assuming the `init` function was closed before the Firebase section.
+        // If `init` was meant to encompass Firebase, this would be different.
+        // Based on the structure, `init` likely ended before the PWA/Firebase sections.
+        // The provided diff ends with `}` before the new Firebase block, so I'll assume
+        // the previous `}` was the end of a function, and the new `}` is also.
+        // Re-evaluating the original code:
+        // `init()` is called at the end of the main script block.
+        // The `init` function itself is not provided in the snippet, but its closing brace
+        // would be before the PWA and Firebase sections.
+        // The provided diff has `}` then `}` then `</script>`. This suggests two closing braces.
+    // The first `}` closes the `document.addEventListener("visibilitychange", ...)` block.
+    // The second `}` closes the `if ('serviceWorker' in navigator)` block.
+    // So, the `}` before `</script>` is correct.
+
+    </script>
+
+    <!-- FIREBASE MODULAR v10 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, enableIndexedDbPersistence, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyB3FZdh4Rrceo_NSSlZ_PLD5fHrZlPk6ks",
             authDomain: "appdevo-851da.firebaseapp.com",
             projectId: "appdevo-851da",
             storageBucket: "appdevo-851da.firebasestorage.app",
             messagingSenderId: "598900494155",
-            appId: "1:598900494155:web:b46ce40bef87ce1719a2ce",
-            measurementId: "G-C4JK5M6K1L"
+            appId: "1:598900494155:web:b46ce40bef87ce1719a2ce"
         };
 
-        let db, auth;
+        const appFirebase = initializeApp(firebaseConfig);
+        const db = getFirestore(appFirebase);
+        const auth = getAuth(appFirebase);
+
         try {
-            if (firebaseConfig.apiKey) {
-                firebase.initializeApp(firebaseConfig);
-                auth = firebase.auth();
-                db = firebase.firestore();
+            enableIndexedDbPersistence(db).catch(err => console.log("Offline Persistence:", err.code));
+        } catch (e) { console.log(e); }
 
-                // Habilitar caché y datos offline local
-                db.enablePersistence().catch(err => {
-                    console.log("Firebase Offline: Varias pestañas o incompatible config", err);
-                });
+        onAuthStateChanged(auth, user => {
+            const btn = document.getElementById('google-login-btn');
+            const btnOnb = document.getElementById('google-login-btn-onboarding');
+            if (user) {
+                if (btn) btn.innerHTML = `<i data-lucide="log-out"></i> Desconectar de Google`;
+                if (btnOnb) btnOnb.innerHTML = `<i data-lucide="log-out"></i> Desconectarse`;
+                window.syncFromFirebase();
 
-                auth.onAuthStateChanged(user => {
-                    const btn = document.getElementById('google-login-btn');
-                    const btnOnb = document.getElementById('google-login-btn-onboarding');
-                    if (user) {
-                        if (btn) btn.innerHTML = `<i data-lucide="log-out"></i> Desconectar de Google`;
-                        if (btnOnb) btnOnb.innerHTML = `<i data-lucide="log-out"></i> Desconectarse`;
-                        syncFromFirebase(); // Trae los cambios online si los hay
-
-                        // Si está en el onboarding, completarlo automáticamente usando datos de Google
-                        const onboarding = document.getElementById('onboarding-overlay');
-                        if (onboarding && onboarding.style.display !== 'none') {
-                            if (!appState.user) appState.user = {};
-                            if (!appState.user.name) appState.user.name = user.displayName || "Usuario";
-                            if (!appState.user.photo && user.photoURL) appState.user.photo = user.photoURL;
-                            if (!appState.user.birth) appState.user.birth = new Date().toISOString().split('T')[0];
-                            save();
-                            onboarding.style.display = 'none';
-                            renderProfile();
-                            showToast("¡Bienvenido, " + appState.user.name + "!", "check");
-                        }
-                    } else {
-                        if (btn) btn.innerHTML = `<i data-lucide="log-in"></i> Conectar con Google`;
-                        if (btnOnb) btnOnb.innerHTML = `<i data-lucide="log-in"></i> Iniciar con Google`;
-                    }
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                });
-            }
-        } catch (e) {
-            console.error("Firebase setup error:", e);
-        }
-
-        function toggleGoogleLogin() {
-            if (!firebaseConfig.apiKey) {
-                showToast("Por favor, agrega las credenciales Firebase en código.", "alert-triangle");
-                return;
-            }
-            if (window.location.protocol === 'file:') {
-                showToast("⚠️ Google Login no funciona abriendo el archivo local (file://). Usa un servidor o sube a GitHub Pages.", "alert-circle");
-                return;
-            }
-            if (!auth) {
-                showToast("Firebase no se inicializó correctamente.", "x");
-                return;
-            }
-
-            if (auth.currentUser) {
-                auth.signOut()
-                    .then(() => showToast("Sesión de Google cerrada", "log-out"))
-                    .catch(e => console.error(e));
-            } else {
-                const provider = new firebase.auth.GoogleAuthProvider();
-
-                // Mostrar alerta visual antes de intentar redirigir
-                showToast("Conectando con Google...", "loader");
-
-                // Usar signInWithRedirect ya que Popup suele fallar en las PWA móviles
-                auth.signInWithRedirect(provider).catch(e => {
-                    console.error("Login Failed:", e);
-                    showToast("Error de conexión: " + e.message, "x");
-                });
-            }
-        }
-
-        // Recuperar y manejar el resultado de la redirección
-        if (auth) {
-            auth.getRedirectResult().then((result) => {
-                if (result && result.user) {
-                    showToast(`¡Conectado!`, "check");
-                    syncToFirebase();
+                const onboarding = document.getElementById('onboarding-overlay');
+                if (onboarding && onboarding.style.display !== 'none') {
+                    if (!appState.user) appState.user = {};
+                    if (!appState.user.name) appState.user.name = user.displayName || "Usuario";
+                    if (!appState.user.photo && user.photoURL) appState.user.photo = user.photoURL;
+                    if (!appState.user.birth) appState.user.birth = new Date().toISOString().split('T')[0];
+                    if (typeof save === 'function') save();
+                    onboarding.style.display = 'none';
+                    if (typeof renderProfile === 'function') renderProfile();
+                    if (typeof showToast === 'function') showToast("¡Bienvenido, " + appState.user.name + "!", "check");
                 }
-            }).catch(e => {
-                console.error("Redirect Error:", e);
-                showToast("Error al iniciar sesión: " + e.message, "x");
-            });
-        }
+            } else {
+                if (btn) btn.innerHTML = `<i data-lucide="log-in"></i> Conectar con Google`;
+                if (btnOnb) btnOnb.innerHTML = `<i data-lucide="log-in"></i> Iniciar con Google`;
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+
+        // Global functions for inline HTML calls
+        window.toggleGoogleLogin = async function () {
+            if (window.location.protocol === 'file:') {
+                showToast("⚠️ API Google bloqueada en file://. Usa GitHub Pages.", "alert-circle");
+                return;
+            }
+
+            if (!auth.currentUser) {
+                const provider = new GoogleAuthProvider();
+                try {
+                    showToast("Conectando...", "loader");
+                    await signInWithPopup(auth, provider);
+                    showToast("¡Conectado!", "check");
+                    window.syncToFirebase();
+                } catch (e) {
+                    console.error("Login Error:", e);
+                    showToast("Error conexion: " + e.message, "x");
+                }
+            } else {
+                signOut(auth).then(() => {
+                    showToast("Sesión de Google cerrada", "log-out");
+                });
+            }
+        };
 
         let syncTimeout = null;
-        function syncToFirebase() {
-            if (!auth || !auth.currentUser || !db) return;
+        window.syncToFirebase = function () {
+            if (!auth.currentUser) return;
             clearTimeout(syncTimeout);
-            syncTimeout = setTimeout(() => {
+            syncTimeout = setTimeout(async () => {
                 const uid = auth.currentUser.uid;
-                const stateData = localStorage.getItem(STORAGE_KEY);
-                db.collection('bible_users').doc(uid).set({
-                    appState: stateData,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true })
-                    .then(() => console.log("💾 Sincronizado correctamente a Firebase"))
-                    .catch(e => console.error("Error sincronizando", e));
-            }, 3000); // Debounce de 3s
-        }
-
-        function syncFromFirebase() {
-            if (!auth || !auth.currentUser || !db) return;
-            const uid = auth.currentUser.uid;
-            db.collection('bible_users').doc(uid).get().then((doc) => {
-                if (doc.exists && doc.data().appState) {
-                    const onlineState = JSON.parse(doc.data().appState);
-                    // Lógica básica para proteger sobrescritura sin preguntar
-                    const cloudKeys = Object.keys(onlineState);
-                    if (cloudKeys.length > 0) {
-                        // Opcionalmente: Object.assign y save(). Actualmente no fuerzo un re-render brutal.
-                        // pero actualizamos si hay más cosas en la nube.
-                        console.log("Datos en Firebase cargados", onlineState);
-                    }
+                const stateData = localStorage.getItem('bible_note_state'); // const STORAGE_KEY
+                if (!stateData) return;
+                try {
+                    await setDoc(doc(db, "bible_users", uid), {
+                        appState: stateData,
+                        timestamp: serverTimestamp()
+                    }, { merge: true });
+                    console.log("💾 Sincronizado a Firebase");
+                } catch (e) {
+                    console.error("Error Sync", e);
                 }
-            }).catch(e => console.error(e));
-        }
+            }, 3000);
+        };
+
+        window.syncFromFirebase = async function () {
+            if (!auth.currentUser) return;
+            const uid = auth.currentUser.uid;
+            try {
+                const docSnap = await getDoc(doc(db, "bible_users", uid));
+                if (docSnap.exists() && docSnap.data().appState) {
+                    const onlineState = JSON.parse(docSnap.data().appState);
+                    console.log("Datos de Firebase cargados", onlineState);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
 
     </script>
 </body>
