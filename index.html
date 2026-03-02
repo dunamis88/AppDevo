@@ -4735,18 +4735,29 @@
                     .catch(e => console.error(e));
             } else {
                 const provider = new firebase.auth.GoogleAuthProvider();
-                auth.signInWithPopup(provider).then((res) => {
-                    showToast(`¡Conectado!`, "check");
-                    syncToFirebase(); // Forzar sincronización al loguear
-                }).catch(e => {
+
+                // Mostrar alerta visual antes de intentar redirigir
+                showToast("Conectando con Google...", "loader");
+
+                // Usar signInWithRedirect ya que Popup suele fallar en las PWA móviles
+                auth.signInWithRedirect(provider).catch(e => {
                     console.error("Login Failed:", e);
-                    if (e.code === 'auth/popup-closed-by-user') {
-                        showToast("Cancelaste el inicio de sesión", "info");
-                    } else {
-                        showToast("Error de conexión: " + e.message, "x");
-                    }
+                    showToast("Error de conexión: " + e.message, "x");
                 });
             }
+        }
+
+        // Recuperar y manejar el resultado de la redirección
+        if (auth) {
+            auth.getRedirectResult().then((result) => {
+                if (result && result.user) {
+                    showToast(`¡Conectado!`, "check");
+                    syncToFirebase();
+                }
+            }).catch(e => {
+                console.error("Redirect Error:", e);
+                showToast("Error al iniciar sesión: " + e.message, "x");
+            });
         }
 
         let syncTimeout = null;
