@@ -4764,6 +4764,16 @@
                 if (docSnap.exists() && docSnap.data().appState) {
                     const onlineState = JSON.parse(docSnap.data().appState);
                     console.log("Datos de Firebase cargados", onlineState);
+
+                    // Apply to local state
+                    appState = Object.assign(appState, onlineState);
+                    localStorage.setItem('devocional_pro_v6', JSON.stringify(appState));
+
+                    // Update UI visually
+                    if (typeof updateDateUI === 'function') updateDateUI();
+                    if (typeof renderProfile === 'function') renderProfile();
+                    if (typeof switchTab === 'function') switchTab(appState.currentTab || 'reader');
+                    if (typeof showToast === 'function') showToast("☁️ Datos sincronizados", "cloud");
                 }
             } catch (e) {
                 console.error(e);
