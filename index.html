@@ -1992,6 +1992,14 @@
             <button class="btn btn-primary btn-full" onclick="finishOnboarding()">
                 Comenzar <i data-lucide="arrow-right"></i>
             </button>
+
+            <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+                <button id="google-login-btn-onboarding" class="btn btn-outline"
+                    style="width: 100%; justify-content: center; gap: 10px; border-color: #EA4335; color: #EA4335;"
+                    onclick="toggleGoogleLogin()">
+                    <i data-lucide="log-in"></i> Iniciar con Google
+                </button>
+            </div>
         </div>
     </div>
 
@@ -3265,10 +3273,21 @@
             const name = document.getElementById('reg-name').value;
             const bD = document.getElementById('reg-birth-display').textContent;
             const photo = document.getElementById('reg-photo-preview').src;
-            if (!name || bD === 'Seleccionar fecha') { alert("Por favor completa tu nombre y fecha."); return; }
+
+            if (!name || name.trim() === '') {
+                showToast("Por favor escribe tu nombre", "alert-circle");
+                return;
+            }
+            if (!bD || bD === 'Seleccionar fecha' || bD.includes('Seleccione')) {
+                showToast("Por favor selecciona tu fecha de nacimiento", "calendar");
+                return;
+            }
+
             appState.user = { name, birth: bD, photo: photo.startsWith('data:') ? photo : null };
-            save(); document.getElementById('onboarding-overlay').style.display = 'none';
+            save();
+            document.getElementById('onboarding-overlay').style.display = 'none';
             renderProfile();
+            showToast("¡Bienvenido!", "check-circle");
         }
 
         function handleRegPhoto(input) {
@@ -4667,11 +4686,27 @@
 
                 auth.onAuthStateChanged(user => {
                     const btn = document.getElementById('google-login-btn');
+                    const btnOnb = document.getElementById('google-login-btn-onboarding');
                     if (user) {
                         if (btn) btn.innerHTML = `<i data-lucide="log-out"></i> Desconectar de Google`;
+                        if (btnOnb) btnOnb.innerHTML = `<i data-lucide="log-out"></i> Desconectarse`;
                         syncFromFirebase(); // Trae los cambios online si los hay
+
+                        // Si está en el onboarding, completarlo automáticamente usando datos de Google
+                        const onboarding = document.getElementById('onboarding-overlay');
+                        if (onboarding && onboarding.style.display !== 'none') {
+                            if (!appState.user) appState.user = {};
+                            if (!appState.user.name) appState.user.name = user.displayName || "Usuario";
+                            if (!appState.user.photo && user.photoURL) appState.user.photo = user.photoURL;
+                            if (!appState.user.birth) appState.user.birth = new Date().toISOString().split('T')[0];
+                            save();
+                            onboarding.style.display = 'none';
+                            renderProfile();
+                            showToast("¡Bienvenido, " + appState.user.name + "!", "check");
+                        }
                     } else {
                         if (btn) btn.innerHTML = `<i data-lucide="log-in"></i> Conectar con Google`;
+                        if (btnOnb) btnOnb.innerHTML = `<i data-lucide="log-in"></i> Iniciar con Google`;
                     }
                     if (typeof lucide !== 'undefined') lucide.createIcons();
                 });
